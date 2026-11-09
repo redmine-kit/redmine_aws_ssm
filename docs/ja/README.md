@@ -9,7 +9,7 @@ Redmine Serverless SSM(`redmine_serverless_ssm`)は、Rails が起動する前�
 
 ## 機能
 
-| 機能 | 中身 | 有効にする条件 | 資料 |
+| 機能 | 内容 | 有効にする条件 | 資料 |
 | --- | --- | --- | --- |
 | Parameter Store の設定 | 1 つの道筋のすぐ下のパラメーターを、Rails が `config/database.yml` と `SECRET_KEY_BASE` を読む前に、環境変数に読み込む | `REDMINE_SSM_PATH` がある | [setup.md](setup.md#configuration) |
 | 管理画面の名前 | 読んだ名前(値ではない)を `RedmineServerlessSsm.loaded` に残す。[Redmine Serverless](https://redmine-kit.github.io/redmine_serverless/ja/admin.html#status-and-connections) が「状態と接続」に出す | 同上 | — |
