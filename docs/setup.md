@@ -9,7 +9,13 @@ What a Redmine needs to use Redmine Serverless SSM: installation, configuration,
 
 ## Installation
 
-**Getting the plugin:** Each version tag publishes the plugin as a gem to GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`). Installing from GitHub Packages needs a GitHub token with `read:packages`, even for a public package. The gem holds the plugin's run-time files; Redmine loads plugins only from `plugins/`, so the installed gem is linked there:
+1. Put the plugin in `plugins/redmine_serverless_ssm`: install the gem ([Gem](#gem)) or clone the repository ([Without the gem](#without-the-gem)).
+2. Either way, the plugin is a gem line in `Gemfile.local`. That line makes Bundler load the plugin before Rails reads the configuration ([README.md](README.md#when-it-reads)).
+3. No migration is needed.
+
+### Gem
+
+Each version tag publishes the plugin as a gem to GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`). Installing from GitHub Packages needs a GitHub token with `read:packages`, even for a public package. The gem holds the plugin's run-time files. Redmine loads plugins only from `plugins/`, so the installed gem is linked there:
 
 ```ruby
 # Redmine's Gemfile.local
@@ -24,16 +30,24 @@ bundle install
 ln -s "$(bundle info --path redmine_serverless_ssm)" plugins/redmine_serverless_ssm
 ```
 
-Without the gem, clone the repository into `plugins/redmine_serverless_ssm` (`git clone https://github.com/redmine-kit/redmine_serverless_ssm.git plugins/redmine_serverless_ssm`).
+### Without the gem
 
-1. Install the gem as above and link it into `plugins/redmine_serverless_ssm`. The gem line in `Gemfile.local` is what makes Bundler load the plugin before Rails reads the configuration ([README.md](README.md#when-it-reads)).
-2. With a clone instead of the gem, add the plugin as a path gem in `Gemfile.local` (not in the plugin's `Gemfile`, for the reason in [README.md](README.md#when-it-reads)), and run `bundle install`:
+Clone the repository into `plugins/redmine_serverless_ssm`:
+
+```sh
+git clone https://github.com/redmine-kit/redmine_serverless_ssm.git plugins/redmine_serverless_ssm
+```
+
+Add it as a path gem in `Gemfile.local` (not in the plugin's `Gemfile`, for the reason in [README.md](README.md#when-it-reads)), then install the gems:
 
 ```ruby
+# Redmine's Gemfile.local
 gem 'redmine_serverless_ssm', path: 'plugins/redmine_serverless_ssm'
 ```
 
-3. No migration is needed.
+```sh
+bundle install
+```
 
 ## Configuration
 

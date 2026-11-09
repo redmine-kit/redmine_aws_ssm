@@ -13,7 +13,15 @@ Redmine Serverless SSM を使う Redmine に要るもの(インストール、�
 
 ## インストール
 
-**プラグインの取り方:** バージョンのタグごとに、プラグインを gem として GitHub Packages(`https://rubygems.pkg.github.com/redmine-kit`)に公開します。GitHub Packages から入れるには、公開のパッケージでも、`read:packages` の権限を持つ GitHub のトークンが要ります。gem はプラグインの動かすためのファイルを持ちます。Redmine は `plugins/` のプラグインだけを読み込むので、入れた gem をそこにリンクします。
+1. プラグインを `plugins/redmine_serverless_ssm` に置きます。gem をインストールするか([gem](#gem))、リポジトリをクローンします([gem を使わないとき](#without-the-gem))。
+2. どちらでも、プラグインは `Gemfile.local` の gem の行になります。この行が、Rails が設定を読む前に、Bundler にプラグインを読み込ませます([README.md](README.md#when-it-reads))。
+3. migration は要りません。
+
+<a id="gem"></a>
+
+### gem
+
+バージョンのタグごとに、プラグインを gem として GitHub Packages(`https://rubygems.pkg.github.com/redmine-kit`)に公開します。GitHub Packages からインストールするには、公開のパッケージでも、`read:packages` の権限を持つ GitHub のトークンが要ります。gem は、プラグインを動かすためのファイルを持ちます。Redmine は `plugins/` のプラグインだけを読み込むので、インストールした gem をそこにリンクします。
 
 ```ruby
 # Redmine の Gemfile.local
@@ -28,16 +36,26 @@ bundle install
 ln -s "$(bundle info --path redmine_serverless_ssm)" plugins/redmine_serverless_ssm
 ```
 
-gem を使わないなら、リポジトリを `plugins/redmine_serverless_ssm` に clone します(`git clone https://github.com/redmine-kit/redmine_serverless_ssm.git plugins/redmine_serverless_ssm`)。
+<a id="without-the-gem"></a>
 
-1. 上のとおり gem を入れて、`plugins/redmine_serverless_ssm` にリンクします。`Gemfile.local` の gem の行が、Rails が設定を読む前に、Bundler にプラグインを読み込ませます([README.md](README.md#when-it-reads))。
-2. gem の代わりに clone したときは、`Gemfile.local` で、プラグインを道筋を指定した gem として足し(プラグインの `Gemfile` に置かない理由は [README.md](README.md#when-it-reads))、`bundle install` を実行します。
+### gem を使わないとき
+
+リポジトリを `plugins/redmine_serverless_ssm` にクローンします。
+
+```sh
+git clone https://github.com/redmine-kit/redmine_serverless_ssm.git plugins/redmine_serverless_ssm
+```
+
+`Gemfile.local` に、パスを指定した gem として足し(プラグインの `Gemfile` に置かない理由は [README.md](README.md#when-it-reads))、gem をインストールします。
 
 ```ruby
+# Redmine の Gemfile.local
 gem 'redmine_serverless_ssm', path: 'plugins/redmine_serverless_ssm'
 ```
 
-3. migration は要りません。
+```sh
+bundle install
+```
 
 <a id="configuration"></a>
 
