@@ -51,9 +51,9 @@ bundle install
 
 ## Configuration
 
-| Setting | Where | Contents |
+| Key | Description | Parameter |
 | --- | --- | --- |
-| `REDMINE_SSM_PATH` | Environment variable of every process that starts Rails (web, jobs, rake, `rails runner`) | The path whose parameters are read, for example `/redmine/env/`. Without it, nothing is read |
+| `REDMINE_SSM_PATH` | Reads the parameters under this path into environment variables. Without it, nothing is read | Required. Example: `/redmine/env/`. Set it in every process that starts Rails (web, jobs, rake, `rails runner`) |
 
 ## AWS resources
 

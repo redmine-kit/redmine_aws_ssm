@@ -61,9 +61,9 @@ bundle install
 
 ## 設定
 
-| 設定 | 場所 | 中身 |
+| キー | 説明 | パラメーター |
 | --- | --- | --- |
-| `REDMINE_SSM_PATH` | Rails を起動するすべてのプロセス(web、ジョブ、rake、`rails runner`)の環境変数 | 読むパラメーターの道筋。例: `/redmine/env/`。なければ何も読まない |
+| `REDMINE_SSM_PATH` | このパスの下のパラメーターを環境変数に読み込む。なければ何も読まない | 必須。例: `/redmine/env/`。Rails を起動するすべてのプロセス(web、ジョブ、rake、`rails runner`)に設定する |
 
 <a id="aws-resources"></a>
 
