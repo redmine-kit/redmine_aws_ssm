@@ -26,3 +26,9 @@ The parameters must be in the environment before Rails reads `config/database.ym
 3. When the application class is defined, its Railtie's `before_configuration` reads the parameters. This is before the class body (including `config/additional_environment.rb`) and before `config/database.yml` is read.
 
 The code is in `boot/`, not `lib/`: Redmine adds a plugin's `lib/` to the autoloaded paths, and a file that Bundler has already required must not be autoloaded again. `init.rb` only registers the plugin, so that it is listed in the administration pages.
+
+## Each process
+
+- **Once per process:** Every process that loads the Rails environment reads the parameters when it starts: the web server, background jobs, `rake` and `rails runner`. A changed value reaches only processes started after the change (on Lambda, new execution environments, for example after the function's configuration is updated).
+- **The database adapter:** Redmine's `Gemfile` chooses the database gem from the literal `adapter:` in `config/database.yml`, without evaluating it, so the gem is chosen correctly even when the host and password come from Parameter Store.
+- **Failure:** An error from Parameter Store (no route, no permission) raises, and the process stops before Rails reads its configuration, so it never runs with only some of its values.
