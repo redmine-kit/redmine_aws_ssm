@@ -1,10 +1,10 @@
-# 準備
+# 導入
 
 Redmine Serverless SSM を使う Redmine に要るもの(インストール、設定、前提にする AWS のリソース、IAM の権限、ネットワーク)です。[Serverless](https://redmine-kit.github.io/serverless/ja/) は、これらをすべて CloudFormation で作ります。このページは、手で用意するときや、Serverless が作るものを確認するときのためのものです。
 
 <a id="requirements"></a>
 
-## 前提
+## 動作環境
 
 - Ruby 4.0 以降の上の Redmine 7.0 以降。
 - SSM を呼べる AWS の認証情報を持つプロセス(Lambda では実行ロール、ほかではインスタンスプロファイルやタスクのロール)。
@@ -101,6 +101,6 @@ bundle install
 
 <a id="to-verify"></a>
 
-## 確認すること
+## 未確認の事項
 
 - 既定の鍵 `aws/ssm` で、IAM が `kms:Decrypt` を許す必要があるか

@@ -13,7 +13,7 @@
 
 <a id="example-policy"></a>
 
-## 例のポリシー
+## ポリシーの例
 
 `REDMINE_SSM_PATH=/<instance>/env/` のときです。
 
@@ -49,6 +49,6 @@
 
 <a id="not-checked-yet"></a>
 
-## 未確認のこと
+## 未確認の事項
 
 - 既定の鍵 `aws/ssm` で暗号化した `SecureString` のパラメーターに、IAM で `kms:Decrypt` を許す必要があるか。
