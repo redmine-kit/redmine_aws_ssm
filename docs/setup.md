@@ -9,6 +9,14 @@ What a Redmine needs to use Redmine Serverless SSM: installation, configuration,
 
 ## Installation
 
+**Getting the plugin:** with Docker, copy it from the plugin's image on ghcr.io, pinned by digest (tags: `main` and `sha-<commit>` for every push to `main`, `v*` for releases):
+
+```dockerfile
+COPY --from=ghcr.io/redmine-kit/redmine_serverless_ssm:main@sha256:<digest> /redmine_serverless_ssm plugins/redmine_serverless_ssm/
+```
+
+Without Docker, clone the repository (`git clone https://github.com/redmine-kit/redmine_serverless_ssm.git plugins/redmine_serverless_ssm`) or, once releases are published, extract a release archive into `plugins/redmine_serverless_ssm`.
+
 1. Put the plugin in `plugins/redmine_serverless_ssm`.
 2. Add this line to Redmine's `Gemfile.local`, and run `bundle install` ([README.md](README.md#when-it-reads) explains why the line is not in the plugin's `Gemfile`):
 

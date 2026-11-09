@@ -13,6 +13,14 @@ Redmine Serverless SSM を使う Redmine に要るもの(インストール、�
 
 ## インストール
 
+**プラグインの取り方:** Docker なら、ghcr.io のプラグインのイメージから、digest で固定して写します(タグは、`main` への push のたびに `main` と `sha-<コミット>`、リリースは `v*`)。
+
+```dockerfile
+COPY --from=ghcr.io/redmine-kit/redmine_serverless_ssm:main@sha256:<digest> /redmine_serverless_ssm plugins/redmine_serverless_ssm/
+```
+
+Docker を使わないなら、リポジトリを clone するか(`git clone https://github.com/redmine-kit/redmine_serverless_ssm.git plugins/redmine_serverless_ssm`)、リリースを公開したあとは、そのアーカイブを `plugins/redmine_serverless_ssm` に展開します。
+
 1. プラグインを `plugins/redmine_serverless_ssm` に置きます。
 2. Redmine の `Gemfile.local` に次の 1 行を足して、`bundle install` を実行します(この行をプラグインの `Gemfile` に置かない理由は [README.md](README.md#when-it-reads) にあります)。
 
