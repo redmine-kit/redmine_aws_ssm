@@ -39,4 +39,4 @@ The code is in `boot/`, not `lib/`: Redmine adds a plugin's `lib/` to the autolo
 
 ## License
 
-Redmine Serverless SSM is released under the GNU General Public License, version 2 or (at your option) any later version. See [LICENSE](../LICENSE). Not affiliated with the Redmine project.
+Redmine Serverless SSM is released under the GNU General Public License, version 2 or (at your option) any later version. See [LICENSE](../LICENSE). An unofficial Redmine plugin.

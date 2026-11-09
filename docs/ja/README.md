@@ -49,4 +49,4 @@ Redmine Serverless SSM(`redmine_serverless_ssm`)は、Rails が起動する前�
 
 ## ライセンス
 
-Redmine Serverless SSM は、GNU General Public License バージョン 2 またはそれ以降のバージョンで公開しています。[LICENSE](../../LICENSE) を参照してください。Redmine projectとは関係ありません。
+Redmine Serverless SSM は、GNU General Public License バージョン 2 またはそれ以降のバージョンで公開しています。[LICENSE](../../LICENSE) を参照してください。Redmine の非公式のプラグインです。

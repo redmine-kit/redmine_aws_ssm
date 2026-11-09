@@ -33,4 +33,4 @@ Rails が起動する前に、AWS Systems Manager Parameter Store から設定�
 
 ## ライセンス
 
-Redmine Serverless SSM は、GNU General Public License バージョン 2 またはそれ以降のバージョンで公開しています。[LICENSE](LICENSE) を参照してください。Redmine projectとは関係ありません。
+Redmine Serverless SSM は、GNU General Public License バージョン 2 またはそれ以降のバージョンで公開しています。[LICENSE](LICENSE) を参照してください。Redmine の非公式のプラグインです。
