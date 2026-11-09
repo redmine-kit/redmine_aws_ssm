@@ -11,7 +11,7 @@ Redmine Serverless SSM (`redmine_serverless_ssm`) is a Redmine plugin that reads
 - **Before the configuration:** the reading must stay in `boot/` and run from the Railtie's `before_configuration`, before `config/database.yml` and `SECRET_KEY_BASE` are read ([docs/README.md](docs/README.md#when-it-reads)). Do not move it to `init.rb` or `lib/`.
 - **Off without its setting:** without `REDMINE_SSM_PATH`, nothing is read.
 - **Never print values:** log and keep only names, never parameter values.
-- **Tests:** `test/loader_test.rb` runs against moto inside the Serverless image (`bin/test-image` of Serverless, with `REDMINE_SERVERLESS_SSM_DIR` pointing at this checkout).
+- **Tests:** `bin/test` runs `test/*_test.rb` in Docker against LocalStack (with `LOCALSTACK_AUTH_TOKEN`) or moto, with coverage; CI runs it and uploads to Codecov. `test/loader_test.rb` must also run alone with the loader required first, as Serverless runs it inside its image.
 - **No secrets in the repository.**
 
 ## Documentation

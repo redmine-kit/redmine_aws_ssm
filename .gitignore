@@ -1,2 +1,4 @@
 .DS_Store
 Gemfile.lint.lock
+Gemfile.test.lock
+/coverage/

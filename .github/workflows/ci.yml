@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - run: bin/lint
+
+  test:
+    needs: static
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write # Codecov with OIDC, no token stored
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      # LocalStack when the organization's token is available, moto otherwise
+      # (pull requests from forks); bin/test prints which one ran.
+      - run: bin/test
+        env:
+          LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
+      # Not failing the run while the Codecov GitHub App is not installed.
+      - uses: codecov/codecov-action@v7.1.1
+        with:
+          files: coverage/coverage.xml
+          use_oidc: true
+          fail_ci_if_error: false
+      - if: always()
+        run: bin/test --down
+        env:
+          LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}

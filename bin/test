@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# Tests (docs/setup.md#tests), in Docker: the loader and a Rails application
+# that boots with the plugin, against SSM from LocalStack when
+# LOCALSTACK_AUTH_TOKEN is set and from moto otherwise. Coverage goes to
+# coverage/ (Cobertura and HTML).
+#   bin/test           # every test
+#   bin/test --down    # stop the services
+# Commands that run inside containers are in single quotes on purpose.
+# shellcheck disable=SC2016
+set -euo pipefail
+cd "$(dirname "$0")/.."
+RUBY=ruby:4.0@sha256:a69f361db050bb2c65ec66ef75411bfc4ce2e1d993ba1179fac4e4ba6ecfe91f
+compose=(docker compose -f test/compose.yml)
+if [[ -n "${LOCALSTACK_AUTH_TOKEN:-}" ]]; then
+  compose+=(--profile localstack)
+  backend=localstack endpoint=http://localstack:4566
+else
+  backend=moto endpoint=http://moto:5000
+fi
+if [[ "${1:-}" == --down ]]; then
+  "${compose[@]}" down -v
+  exit 0
+fi
+
+echo "SSM for the tests: $backend ($endpoint)"
+"${compose[@]}" up -d --wait "$backend"
+rm -rf coverage
+docker run --rm --network redmine-serverless-ssm-test_default -v "$PWD:/work" -w /work \
+  -v redmine-serverless-ssm-test-bundle:/usr/local/bundle -e BUNDLE_GEMFILE=Gemfile.test \
+  -e AWS_ENDPOINT_URL="$endpoint" -e AWS_REGION=us-east-1 -e AWS_ACCESS_KEY_ID=test \
+  -e AWS_SECRET_ACCESS_KEY=test -e PLUGIN_COVERAGE=1 "$RUBY" sh -c '
+    bundle update --quiet --cooldown=3 &&
+    bundle exec ruby -Iboot -e "Dir[\"test/*_test.rb\"].each { |file| require \"./#{file}\" }"'

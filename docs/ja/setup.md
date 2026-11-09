@@ -75,7 +75,11 @@ gem 'redmine_serverless_ssm', path: 'plugins/redmine_serverless_ssm'
 
 ## テスト
 
-`test/loader_test.rb` は、SSM の API を再現する moto に対して動きます。Serverless が、イメージの中で実行します(`bin/test-image`)。そこでは、3 つの役割が、データベースのホスト、そのパスワード、`SECRET_KEY_BASE` を Parameter Store だけから読むので、読み込みのタイミングも確認できます。
+`bin/test` が、Docker の中でテストを実行します。`LOCALSTACK_AUTH_TOKEN` があれば LocalStack の、なければ moto の SSM に対して動きます(どちらかを表示します)。CI は、push のたびに、組織の LocalStack のトークンで実行し(フォークからのプルリクエストは moto)、`boot/` のカバレッジを Codecov に送ります。
+
+- **読み込み(`test/loader_test.rb`):** 10 件を超えるパラメーター(複数のページ)、`SecureString` の復号、すでにある環境変数、環境変数にできない名前と下の階層、届かないエンドポイント。
+- **起動(`test/boot_test.rb`):** Redmine と同じ形で定義した Rails 8.1 のアプリを、`REDMINE_SSM_PATH` を付けて、別のプロセスで起動します。アプリのクラスの本体(Redmine が `config/additional_environment.rb` を評価するところ)と `config/database.yml` で、Parameter Store の値が環境に入っていること、道筋がなければ何も読まないこと、Parameter Store に届かなければ起動が失敗することを確認します。
+- **Serverless で:** Serverless も、イメージの中で `test/loader_test.rb` を実行します(`bin/test-image`)。そこでは、3 つの役割が、データベースのホスト、そのパスワード、`SECRET_KEY_BASE` を Parameter Store だけから読みます([Serverless の testing.md](https://redmine-kit.github.io/serverless/ja/testing.html#image-tests))。
 
 <a id="to-verify"></a>
 

@@ -1,10 +1,14 @@
 # Redmine Serverless SSM
 
+[![CI](https://img.shields.io/github/actions/workflow/status/redmine-kit/redmine_serverless_ssm/ci.yml?branch=main&label=CI)](https://github.com/redmine-kit/redmine_serverless_ssm/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/codecov/c/github/redmine-kit/redmine_serverless_ssm)](https://codecov.io/gh/redmine-kit/redmine_serverless_ssm)
+[![License](https://img.shields.io/github/license/redmine-kit/redmine_serverless_ssm)](LICENSE)
+
 A Redmine plugin that reads settings and secrets from AWS Systems Manager Parameter Store into environment variables before Rails starts, so that `config/database.yml` and `SECRET_KEY_BASE` can use them. It is part of [Serverless](https://github.com/redmine-kit/serverless), and works on any Redmine with AWS credentials.
 
 [日本語](README.ja.md)
 
-> **Status:** early development. The loading is implemented and tested in Serverless's image.
+> **Status:** early development. The loading is implemented, tested against moto and LocalStack, and used in Serverless's image.
 
 ## Documentation
 

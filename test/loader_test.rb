@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-# Runs against moto, inside the Serverless image (its bin/test-image):
+# Runs against moto or LocalStack with bin/test, and inside the Serverless
+# image (its bin/test-image), where the loader is required first:
 #   ruby -rbundler/setup -rredmine_serverless_ssm/loader loader_test.rb
-require 'minitest/autorun'
-require 'securerandom'
+require_relative 'test_helper'
 
 class LoaderTest < Minitest::Test
   def setup

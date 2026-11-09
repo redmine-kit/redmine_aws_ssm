@@ -1,10 +1,14 @@
 # Redmine Serverless SSM
 
+[![CI](https://img.shields.io/github/actions/workflow/status/redmine-kit/redmine_serverless_ssm/ci.yml?branch=main&label=CI)](https://github.com/redmine-kit/redmine_serverless_ssm/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/codecov/c/github/redmine-kit/redmine_serverless_ssm)](https://codecov.io/gh/redmine-kit/redmine_serverless_ssm)
+[![License](https://img.shields.io/github/license/redmine-kit/redmine_serverless_ssm)](LICENSE)
+
 Rails が起動する前に、AWS Systems Manager Parameter Store から設定と秘密の値を環境変数に読み込み、`config/database.yml` と `SECRET_KEY_BASE` で使えるようにする Redmine のプラグインです。[Serverless](https://github.com/redmine-kit/serverless) の一部で、AWS の認証情報がある Redmine なら、どこでも動きます。
 
 [English](README.md)
 
-> **状態:** 開発の初期です。読み込みを実装し、Serverless のイメージでテストしています。
+> **状態:** 開発の初期です。読み込みを実装し、moto と LocalStack に対してテストし、Serverless のイメージで使っています。
 
 <a id="documentation"></a>
 
