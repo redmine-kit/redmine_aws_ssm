@@ -34,7 +34,55 @@ Redmine Serverless SSM(`redmine_serverless_ssm`)は、Rails が起動する前�
 gem 'redmine_serverless_ssm', path: 'plugins/redmine_serverless_ssm'
 ```
 
-`REDMINE_SSM_PATH` を設定し、プロセスに、その道筋への `ssm:GetParametersByPath` を許します(顧客管理のキーで暗号化したパラメーターなら、そのキーへの `kms:Decrypt` も)。
+`REDMINE_SSM_PATH` を設定し、プロセスに、下の権限を渡します([IAM の権限](#iam-permissions))。
+
+<a id="iam-permissions"></a>
+
+## IAM の権限
+
+| 権限 | リソース | 使いみち |
+| --- | --- | --- |
+| `ssm:GetParametersByPath` | `arn:aws:ssm:<region>:<account>:parameter/<instance>/env` とその下 | `REDMINE_SSM_PATH` の下のパラメーターを読む |
+| `kms:Decrypt` | `SecureString` のパラメーターを暗号化したキー | 復号する。既定のキー `aws/ssm` で IAM での許可が要るかは未確認。顧客管理のキーなら、キーのポリシーでも許す |
+
+`REDMINE_SSM_PATH=/<instance>/env/` のときの、ポリシーの例です。
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ReadSettings",
+      "Effect": "Allow",
+      "Action": "ssm:GetParametersByPath",
+      "Resource": [
+        "arn:aws:ssm:<region>:<account>:parameter/<instance>/env",
+        "arn:aws:ssm:<region>:<account>:parameter/<instance>/env/*"
+      ]
+    },
+    {
+      "Sid": "DecryptSettings",
+      "Effect": "Allow",
+      "Action": "kms:Decrypt",
+      "Resource": "*",
+      "Condition": { "StringEquals": { "kms:ViaService": "ssm.<region>.amazonaws.com" } }
+    }
+  ]
+}
+```
+
+- **読む側:** プラグインを入れて Rails を起動するプロセス(画面、ジョブ、rake、`rails runner`)は、どれもパラメーターを読むので、それぞれのロールに権限が要ります。
+- **書く側:** プラグインは読むだけです。パラメーターはデプロイが作ります。秘密でない設定は `String`、`SECRET_KEY_BASE` やデータベースのパスワードのような秘密の値は `SecureString` にします。
+
+<a id="network"></a>
+
+## ネットワーク
+
+| どこへ | API | インターネットに出られない VPC の中では |
+| --- | --- | --- |
+| SSM | `GetParametersByPath` | インターフェースのエンドポイント `com.amazonaws.<region>.ssm` |
+
+呼ぶのは、それぞれのプロセスが起動するときの 1 回です。エンドポイントに届かなければ、起動は失敗します。
 
 <a id="tests"></a>
 

@@ -28,7 +28,51 @@ Put the plugin in `plugins/redmine_serverless_ssm`, add this line to Redmine's `
 gem 'redmine_serverless_ssm', path: 'plugins/redmine_serverless_ssm'
 ```
 
- Set `REDMINE_SSM_PATH`, and give the process `ssm:GetParametersByPath` on that path (and `kms:Decrypt` on the key, when the parameters use a customer managed key).
+ Set `REDMINE_SSM_PATH`, and give the process the permissions below ([IAM permissions](#iam-permissions)).
+
+## IAM permissions
+
+| Permission | Resource | Use |
+| --- | --- | --- |
+| `ssm:GetParametersByPath` | `arn:aws:ssm:<region>:<account>:parameter/<instance>/env` and below it | Reading the parameters under `REDMINE_SSM_PATH` |
+| `kms:Decrypt` | The key that encrypts the `SecureString` parameters | Decrypting them. With the default key `aws/ssm`, whether IAM must allow it is not checked yet; with a customer managed key, the key policy must allow it too |
+
+Example policy, for `REDMINE_SSM_PATH=/<instance>/env/`:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ReadSettings",
+      "Effect": "Allow",
+      "Action": "ssm:GetParametersByPath",
+      "Resource": [
+        "arn:aws:ssm:<region>:<account>:parameter/<instance>/env",
+        "arn:aws:ssm:<region>:<account>:parameter/<instance>/env/*"
+      ]
+    },
+    {
+      "Sid": "DecryptSettings",
+      "Effect": "Allow",
+      "Action": "kms:Decrypt",
+      "Resource": "*",
+      "Condition": { "StringEquals": { "kms:ViaService": "ssm.<region>.amazonaws.com" } }
+    }
+  ]
+}
+```
+
+- **Who reads:** Every process that starts Rails with the plugin (web, jobs, rake, `rails runner`) reads the parameters, so each of their roles needs the permissions.
+- **Who writes:** The plugin only reads. The parameters are created by the deployment: `String` for settings that are not secret, `SecureString` for secrets such as `SECRET_KEY_BASE` and the database password.
+
+## Network
+
+| To | API | In a VPC without internet access |
+| --- | --- | --- |
+| SSM | `GetParametersByPath` | Interface endpoint `com.amazonaws.<region>.ssm` |
+
+The call is made once when each process starts. If the endpoint cannot be reached, start-up fails.
 
 ## Tests
 
