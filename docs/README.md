@@ -2,7 +2,8 @@
 
 Redmine Serverless SSM (`redmine_serverless_ssm`) is a Redmine plugin that reads settings and secrets from AWS Systems Manager Parameter Store into environment variables before Rails starts. [Serverless](https://redmine-kit.github.io/serverless/lambda.html#settings-and-secrets-ssm-parameter-store) installs it in the Lambda image, and it works the same way on any Redmine that has AWS credentials (containers, virtual machines). It does not modify Redmine's own files. The plugin is in early development: the loading is implemented and tested in Serverless's image.
 
-- [Setup](setup.md): requirements, installation, configuration, AWS resources, IAM permissions, network, tests
+- [Setup](setup.md): requirements, installation, configuration, AWS resources, network, tests
+- [IAM permissions](iam.md): permissions, example policy, resource-based policies
 
 ## Features
 
