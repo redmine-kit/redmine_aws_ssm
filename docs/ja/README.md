@@ -39,6 +39,14 @@ Redmine Serverless SSM(`redmine_serverless_ssm`)は、Rails が起動する前�
 - **データベースのアダプター:** Redmine の `Gemfile` は、`config/database.yml` の `adapter:` の文字列を、評価せずに見てデータベースの gem を選びます。ホストとパスワードが Parameter Store から来ても、gem は正しく選ばれます。
 - **失敗:** Parameter Store のエラー(経路がない、権限がない)は例外を発生させ、Rails が設定を読む前にプロセスを止めます。値の一部だけで動くことはありません。
 
+<a id="sponsors"></a>
+
 ## スポンサー
 
 <Sponsors><a href="https://localstack.cloud">LocalStack</a></Sponsors>
+
+<a id="license"></a>
+
+## ライセンス
+
+Redmine Serverless SSM は、GNU General Public License バージョン 2 またはそれ以降のバージョンで公開しています。[LICENSE](../../LICENSE) を参照してください。Redmine projectとは関係ありません。
