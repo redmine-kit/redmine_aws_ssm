@@ -35,9 +35,11 @@ Redmine Serverless SSM(`redmine_serverless_ssm`)は、Rails が起動する前�
 
 ## プロセスごとの読み込み
 
-- **プロセスごとに 1 回:** Rails の環境を読み込むプロセスは、どれも起動のときにパラメーターを読みます。Web のサーバー、バックグラウンドのジョブ、`rake`、`rails runner` です。変えた値は、変えたあとに起動したプロセスにだけ届きます(Lambda では、関数の設定を更新したあとなどの、新しい実行環境)。
-- **データベースのアダプター:** Redmine の `Gemfile` は、`config/database.yml` の `adapter:` の文字列を、評価せずに見てデータベースの gem を選びます。ホストとパスワードが Parameter Store から来ても、gem は正しく選ばれます。
-- **失敗:** Parameter Store のエラー(経路がない、権限がない)は例外を発生させ、Rails が設定を読む前にプロセスを止めます。値の一部だけで動くことはありません。
+Rails の環境を読み込むプロセスは、どれも起動のときに 1 回だけパラメーターを読みます。Web のサーバー、バックグラウンドのジョブ、`rake`、`rails runner` です。そのため、変えた値は、変えたあとに起動したプロセスにだけ届きます。Lambda では、関数の設定を更新したあとなどにできる、新しい実行環境がこれに当たります。
+
+ホストとパスワードが Parameter Store から来ても、データベースの gem は正しく選ばれます。Redmine の `Gemfile` は、`config/database.yml` を評価せず、`adapter:` に書いた文字列を見て gem を選ぶからです。
+
+Parameter Store がエラーを返したとき(経路がない、権限がない)は、プラグインが例外を発生させ、Rails が設定を読む前にプロセスが止まります。値の一部だけで Redmine が動くことはありません。
 
 <a id="sponsors"></a>
 
