@@ -35,7 +35,7 @@ The code is in `boot/`, not `lib/`: Redmine adds a plugin's `lib/` to the autolo
 
 ## Sponsors
 
-<Sponsors><a href="https://localstack.cloud">LocalStack</a></Sponsors>
+<Sponsors><a href="https://www.keyselect.co.jp/">KEY SELECT</a> <a href="https://localstack.cloud">LocalStack</a></Sponsors>
 
 ## License
 
