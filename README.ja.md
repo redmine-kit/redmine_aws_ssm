@@ -4,10 +4,16 @@ Rails が起動する前に、AWS Systems Manager Parameter Store から設定�
 
 [English](README.md)
 
-## 資料
+> **状態:** 開発の初期です。読み込みを実装し、Serverless のイメージでテストしています。
+
+<a id="documentation"></a>
+
+## ドキュメント
 
 - Web サイト: https://redmine-kit.github.io/redmine_serverless_ssm/ja/ (English: https://redmine-kit.github.io/redmine_serverless_ssm/)
-- Markdown: [docs/ja/README.md](docs/ja/README.md) (English: [docs/README.md](docs/README.md))
+- Markdown: [docs/ja/README.md](docs/ja/README.md) (English: [docs/README.md](docs/README.md))。[準備](docs/ja/setup.md)があります。
+
+<a id="license"></a>
 
 ## ライセンス
 

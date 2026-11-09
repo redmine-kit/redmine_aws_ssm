@@ -4,10 +4,12 @@ A Redmine plugin that reads settings and secrets from AWS Systems Manager Parame
 
 [日本語](README.ja.md)
 
+> **Status:** early development. The loading is implemented and tested in Serverless's image.
+
 ## Documentation
 
 - Website: https://redmine-kit.github.io/redmine_serverless_ssm/ (日本語: https://redmine-kit.github.io/redmine_serverless_ssm/ja/)
-- Markdown: [docs/README.md](docs/README.md) (日本語: [docs/ja/README.md](docs/ja/README.md))
+- Markdown: [docs/README.md](docs/README.md) (日本語: [docs/ja/README.md](docs/ja/README.md)), with [setup](docs/setup.md)
 
 ## License
 
