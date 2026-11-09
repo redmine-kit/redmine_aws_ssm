@@ -26,7 +26,7 @@ Redmine Serverless SSM(`redmine_serverless_ssm`)は、Rails が起動する前�
 
 <a id="installation"></a>
 
-## 入れ方
+## インストール
 
 プラグインを `plugins/redmine_serverless_ssm` に置き、Redmine の `Gemfile.local` に次の 1 行を足して、`bundle install` を実行します。
 
