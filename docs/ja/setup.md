@@ -46,7 +46,7 @@ ln -s "$(bundle info --path redmine_serverless_ssm)" plugins/redmine_serverless_
 git clone https://github.com/redmine-kit/redmine_serverless_ssm.git plugins/redmine_serverless_ssm
 ```
 
-`Gemfile.local` に、パスを指定した gem として足し(プラグインの `Gemfile` に置かない理由は [README.md](README.md#when-it-reads))、gem をインストールします。
+`Gemfile.local` に、パスを指定した gem として追加し(プラグインの `Gemfile` に置かない理由は [README.md](README.md#when-it-reads))、gem をインストールします。
 
 ```ruby
 # Redmine の Gemfile.local
@@ -71,7 +71,7 @@ bundle install
 
 | リソース | 設定 |
 | --- | --- |
-| 道筋の下の SSM のパラメーター | 秘密でない設定(`REDMINE_DB_HOST` など)は `String`、秘密の値(`SECRET_KEY_BASE`、`REDMINE_DB_PASSWORD` など)は `SecureString`。プラグインは読むだけで、作るのはデプロイ |
+| パスの下の SSM のパラメーター | 秘密でない設定(`REDMINE_DB_HOST` など)は `String`、秘密の値(`SECRET_KEY_BASE`、`REDMINE_DB_PASSWORD` など)は `SecureString`。プラグインは読むだけで、作るのはデプロイ |
 
 <a id="iam-permissions"></a>
 
