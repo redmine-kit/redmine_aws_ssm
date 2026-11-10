@@ -106,4 +106,4 @@ Serverless も、イメージの中で `test/loader_test.rb` を実行します(
 
 ## 未確認の事項
 
-- 既定の鍵 `aws/ssm` で、IAM が `kms:Decrypt` を許す必要があるか
+- デフォルトの鍵 `aws/ssm` で、IAM が `kms:Decrypt` を許す必要があるか
