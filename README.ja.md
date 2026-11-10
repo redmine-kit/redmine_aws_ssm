@@ -9,7 +9,7 @@ Rails が起動する前に、AWS Systems Manager Parameter Store から設定�
 
 [English](README.md)
 
-> **状態:** 開発の初期です。読み込みを実装し、moto と LocalStack に対してテストし、Serverless のイメージで使っています。
+> **状態:** 開発の初期です。実装し、Redmine 7.0.3 でテストしています。Serverless のイメージで使っています。
 
 <a id="documentation"></a>
 

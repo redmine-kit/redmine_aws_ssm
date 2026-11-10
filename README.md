@@ -9,7 +9,7 @@ A Redmine plugin that reads settings and secrets from AWS Systems Manager Parame
 
 [日本語](README.ja.md)
 
-> **Status:** early development. The loading is implemented, tested against moto and LocalStack, and used in Serverless's image.
+> **Status:** early development. It is implemented and tested on Redmine 7.0.3. It is used in Serverless's image.
 
 ## Documentation
 
