@@ -10,7 +10,7 @@ Redmine Serverless SSM (`redmine_serverless_ssm`) is a Redmine plugin that reads
 | Feature | Contents | Enabled when | Page |
 | --- | --- | --- | --- |
 | Settings from Parameter Store | Reads every parameter directly under one path into environment variables, before Rails reads `config/database.yml` and `SECRET_KEY_BASE` | `REDMINE_SSM_PATH` is set | [setup.md](setup.md#configuration) |
-| Names on the administration page | `RedmineServerlessSsm.loaded` holds the names read (not the values); [Redmine Serverless](https://redmine-kit.github.io/redmine_serverless/admin.html#status-and-connections) shows them on "Status and connections" | Same as above | — |
+| Names on the administration page | `RedmineServerlessSsm.loaded` holds the names read (not the values); [Redmine Serverless](https://redmine-kit.github.io/redmine_serverless/admin.html#status-and-connections) shows them on the "Status" tab | Same as above | — |
 
 - **Reads one path:** It reads the parameters directly under `REDMINE_SSM_PATH` (for example `/redmine/env/`) with `GetParametersByPath`, continuing past the 10 parameters of one call, and decrypts `SecureString` parameters.
 - **Names become variables:** The last part of each name is the variable name: `/redmine/env/SECRET_KEY_BASE` becomes `SECRET_KEY_BASE`. Only names that can be environment variables (capital letters, digits and `_`) are read, and deeper paths are not.

@@ -1,4 +1,4 @@
-# IAM の権限
+# IAM 権限
 
 プラグインを入れて Rails を起動するプロセスは、どれもパラメーターを読むので、そのすべてのロールにこの権限が要ります。
 
@@ -8,7 +8,7 @@
 
 | 操作 | 対象 | 理由 |
 | --- | --- | --- |
-| `ssm:GetParametersByPath` | `arn:aws:ssm:<region>:<account>:parameter/<instance>/env` と、その下 | `REDMINE_SSM_PATH` の下のパラメーターを読む。Redmine Serverless の「状態と接続」の SSM の確認にも使う |
+| `ssm:GetParametersByPath` | `arn:aws:ssm:<region>:<account>:parameter/<instance>/env` と、その下 | `REDMINE_SSM_PATH` の下のパラメーターを読む。Redmine Serverless の「ステータス」のタブの SSM の接続テストにも使う |
 | `kms:Decrypt` | `SecureString` のパラメーターを暗号化した鍵 | 復号する |
 
 <a id="example-policy"></a>
