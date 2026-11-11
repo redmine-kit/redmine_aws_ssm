@@ -31,7 +31,7 @@ The code is in `boot/`, not `lib/`: Redmine adds a plugin's `lib/` to the autolo
 
 Every process that loads the Rails environment reads the parameters once, when it starts: the web server, background jobs, `rake` and `rails runner`. A changed value therefore reaches only processes started after the change. On Lambda, these are new execution environments, for example after the function's configuration is updated.
 
-The database gem is still chosen correctly when the host and password come from Parameter Store. Redmine's `Gemfile` picks it from the literal `adapter:` in `config/database.yml`, without evaluating the file.
+The database gem is still chosen correctly when the host and password come from Parameter Store. Redmine's `Gemfile` picks it from the literal `adapter:` in `config/database.yml`, without evaluating the file. It evaluates the file with ERB only when the `adapter:` line itself is ERB (Redmine 7.0.3's `Gemfile`), and Bundler evaluates the `Gemfile` before the plugin reads Parameter Store, so the adapter cannot come from Parameter Store.
 
 If Parameter Store returns an error (no route, no permission), the plugin raises it and the process stops before Rails reads its configuration. Redmine never runs with only some of its values.
 

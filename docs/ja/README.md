@@ -37,7 +37,7 @@ Redmine AWS SSM (`redmine_aws_ssm`) は、Rails が起動する前に、AWS Syst
 
 Rails の環境を読み込むプロセスは、どれも起動時に 1 回だけパラメーターを読み込みます。Web サーバー、バックグラウンドジョブ、`rake`、`rails runner` です。そのため、変更した値は、変更後に起動したプロセスにだけ反映されます。Lambda では、関数の設定を更新したあとなどに作成される、新しい実行環境がこれに当たります。
 
-データベースのホストとパスワードが Parameter Store から来ても、データベースの gem は正しく選ばれます。Redmine の `Gemfile` は、`config/database.yml` を評価せず、`adapter:` に書かれた文字列から gem を選ぶからです。
+データベースのホストとパスワードが Parameter Store から来ても、データベースの gem は正しく選ばれます。Redmine の `Gemfile` は、`config/database.yml` を評価せず、`adapter:` に書かれた文字列から gem を選ぶからです。ERB で評価するのは `adapter:` の行自体が ERB のときだけで (Redmine 7.0.3 の `Gemfile`)、Bundler はプラグインが Parameter Store を読む前に `Gemfile` を評価するので、アダプターは Parameter Store から設定できません。
 
 Parameter Store がエラーを返したとき (経路がない、権限がない) は、プラグインが例外を発生させ、Rails が設定を読み込む前にプロセスが停止します。値の一部だけで Redmine が動くことはありません。
 
