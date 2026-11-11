@@ -1,27 +1,27 @@
 # 導入
 
-Redmine AWS SSM を使う Redmine に要るもの(インストール、設定、前提にする AWS のリソース、IAM の権限、ネットワーク)です。[Serverless](https://redmine-kit.github.io/serverless/ja/) は、これらをすべて CloudFormation で作ります。このページは、手で用意するときや、Serverless が作るものを確認するときのためのものです。
+Redmine AWS SSM を使う Redmine に必要なもの (インストール、設定、前提とする AWS リソース、IAM 権限、ネットワーク) です。[Serverless](https://redmine-kit.github.io/serverless/ja/) は、これらをすべて CloudFormation で作成します。このページは、手作業で用意するときや、Serverless が作成するものを確認するときのためのものです。
 
 <a id="requirements"></a>
 
 ## 動作環境
 
-- Ruby 4.0 以降の上の Redmine 7.0 以降。
-- SSM を呼べる AWS の認証情報を持つプロセス(Lambda では実行ロール、ほかではインスタンスプロファイルやタスクのロール)。
+- Ruby 4.0 以降で動く Redmine 7.0 以降。
+- SSM を呼び出せる AWS の認証情報を持つプロセス (Lambda では実行ロール、それ以外ではインスタンスプロファイルやタスクロール)。
 
 <a id="installation"></a>
 
 ## インストール
 
-1. プラグインを `plugins/redmine_aws_ssm` に、これが必要とする [Redmine AWS](https://redmine-kit.github.io/redmine_aws/ja/) を `plugins/redmine_aws` に置きます。gem をインストールするか([gem](#gem))、リポジトリをクローンします([gem を使わないとき](#without-the-gem))。Redmine はプラグインをアルファベット順に読み込むので、`redmine_aws` が先になります。
-2. どちらでも、プラグインは `Gemfile.local` の gem の行になります。この行が、Rails が設定を読む前に、Bundler にプラグインを読み込ませます([README.md](README.md#when-it-reads))。
-3. migration は要りません。
+1. プラグインを `plugins/redmine_aws_ssm` に、このプラグインが必要とする [Redmine AWS](https://redmine-kit.github.io/redmine_aws/ja/) を `plugins/redmine_aws` に置きます。gem をインストールするか ([gem](#gem))、リポジトリをクローンします ([gem を使わないとき](#without-the-gem))。Redmine はプラグインをアルファベット順に読み込むので、`redmine_aws` が先になります。
+2. どちらの場合も、プラグインは `Gemfile.local` に gem として追加します。この行によって、Rails が設定を読み込む前に Bundler がプラグインを読み込みます ([README.md](README.md#when-it-reads))。
+3. migration は不要です。
 
 <a id="gem"></a>
 
 ### gem
 
-バージョンのタグごとに、プラグインを gem として GitHub Packages(`https://rubygems.pkg.github.com/redmine-kit`)に公開します。GitHub Packages からインストールするには、公開のパッケージでも、`read:packages` の権限を持つ GitHub のトークンが要ります。gem は、プラグインを動かすためのファイルを持ちます。gem は gem の `redmine_aws` に依存するので、Bundler が同じソースからインストールします。Redmine は `plugins/` のプラグインだけを読み込むので、インストールした 2 つの gem をそこにリンクします。
+バージョンのタグごとに、プラグインを gem として GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`) に公開します。GitHub Packages からインストールするには、公開のパッケージでも、`read:packages` の権限を持つ GitHub のトークンが必要です。gem には、実行に必要なファイルが入ります。gem は `redmine_aws` の gem に依存するので、Bundler が同じソースからいっしょにインストールします。Redmine は `plugins/` のプラグインだけを読み込むので、インストールした 2 つの gem をそこにリンクします。
 
 ```ruby
 # Redmine の Gemfile.local
@@ -48,7 +48,7 @@ git clone https://github.com/redmine-kit/redmine_aws.git plugins/redmine_aws
 git clone https://github.com/redmine-kit/redmine_aws_ssm.git plugins/redmine_aws_ssm
 ```
 
-`Gemfile.local` に、パスを指定した gem として追加し(プラグインの `Gemfile` に置かない理由は [README.md](README.md#when-it-reads))、gem をインストールします。gemspec が必要とする `redmine_aws` も Bundler が見つけられるように、パスで追加します。これは読み込ませません (`require: false`。Redmine がプラグインとして読み込みます)。
+プラグインを、パスを指定した gem として `Gemfile.local` に追加し (プラグインの `Gemfile` に書かない理由は [README.md](README.md#when-it-reads))、gem をインストールします。gemspec が必要とする `redmine_aws` も Bundler が見つけられるように、パスで追加します。これは Bundler には読み込ませません (`require: false`。Redmine がプラグインとして読み込みます)。ほかの Redmine AWS のプラグインをパスで追加するときも、`redmine_aws` の行は 1 つだけにします。
 
 ```ruby
 # Redmine の Gemfile.local
@@ -66,7 +66,7 @@ bundle install
 
 | キー | 説明 | パラメーター |
 | --- | --- | --- |
-| `REDMINE_SSM_PATH` | このパスの下のパラメーターを環境変数に読み込む。なければ何も読まない | 必須。例: `/redmine/env/`。Rails を起動するすべてのプロセス(web、ジョブ、rake、`rails runner`)に設定する |
+| `REDMINE_SSM_PATH` | このパスの下のパラメーターを環境変数に読み込む。なければ何も読み込まない | 必須。例: `/redmine/env/`。Rails を起動するすべてのプロセス (web、ジョブ、rake、`rails runner`) に設定する |
 
 <a id="aws-resources"></a>
 
@@ -74,39 +74,39 @@ bundle install
 
 | リソース | 設定 |
 | --- | --- |
-| パスの下の SSM のパラメーター | 秘密でない設定(`REDMINE_DB_HOST` など)は `String`、秘密の値(`SECRET_KEY_BASE`、`REDMINE_DB_PASSWORD` など)は `SecureString`。プラグインは読むだけで、作るのはデプロイ |
+| パスの下の SSM パラメーター | シークレットでない設定 (`REDMINE_DB_HOST` など) は `String`、シークレット (`SECRET_KEY_BASE`、`REDMINE_DB_PASSWORD` など) は `SecureString`。プラグインは読み込むだけで、作成するのはデプロイ |
 
 <a id="iam-permissions"></a>
 
 ## IAM 権限
 
-プラグインに要る権限と例のポリシーは、[iam.md](iam.md) にあります。
+プラグインに必要な権限とポリシーの例は、[iam.md](iam.md) にあります。
 
 <a id="network"></a>
 
 ## ネットワーク
 
-| 行き先 | API | インターネットに出られない VPC の中では |
+| 送信先 | API | インターネットに接続できない VPC では |
 | --- | --- | --- |
-| SSM | `GetParametersByPath` | インターフェースのエンドポイント `com.amazonaws.<region>.ssm` |
+| SSM | `GetParametersByPath` | インターフェイスエンドポイント `com.amazonaws.<region>.ssm` |
 
-呼び出しは、プロセスが起動するときに 1 回です。エンドポイントに届かなければ、起動が失敗します。
+呼び出しは、各プロセスの起動時に 1 回です。エンドポイントに接続できなければ、起動が失敗します。
 
 <a id="tests"></a>
 
 ## テスト
 
-`bin/test` が、Docker の中でテストを実行します。`LOCALSTACK_AUTH_TOKEN` があれば LocalStack の、なければ moto の SSM に対して動きます(どちらかを表示します)。ローダーが読み込む Redmine AWS の inflection は、隣のチェックアウト (`../redmine_aws`) か、`REDMINE_AWS_DIR` のディレクトリから使います。CI は、push のたびに、組織の LocalStack のトークンで実行し(フォークからの Pull Request は moto)、`boot/` のカバレッジを Codecov に送ります。
+`bin/test` は、Docker でテストを実行します。SSM は、`LOCALSTACK_AUTH_TOKEN` があれば LocalStack、なければ moto です (どちらを使うかを表示します)。ローダーが読み込む活用形を持つ Redmine AWS は、隣のチェックアウト (`../redmine_aws`) か、`REDMINE_AWS_DIR` のディレクトリから使います。CI は、push のたびに組織の LocalStack のトークンで実行し (フォークからの Pull Request は moto)、`boot/` のカバレッジを Codecov に送信します。
 
-| テスト | 確認する内容 |
+| テスト | 確認すること |
 | --- | --- |
-| `test/loader_test.rb` | 10 件を超えるパラメーター(複数のページ)、`SecureString` の復号、すでにある環境変数、環境変数にできない名前と下の階層、届かないエンドポイント |
-| `test/boot_test.rb` | Redmine と同じ形で定義した Rails 8.1 のアプリを、`REDMINE_SSM_PATH` を付けて別のプロセスで起動する。アプリのクラスの本体(Redmine が `config/additional_environment.rb` を評価するところ)と `config/database.yml` で Parameter Store の値が環境に入っていること、パスがなければ何も読まないこと、Parameter Store に届かなければ起動が失敗すること、ローダーが Redmine AWS の inflection (`redmine_aws/inflections`) を読み込んでいること |
+| `test/loader_test.rb` | 10 件を超えるパラメーター (複数のページ)、`SecureString` の復号、設定済みの環境変数、環境変数名にできない名前、下の階層、接続できないエンドポイント |
+| `test/boot_test.rb` | Redmine と同じ形で定義した Rails 8.1 のアプリケーションを、`REDMINE_SSM_PATH` を設定して別のプロセスで起動する。アプリケーションクラスの本体 (Redmine が `config/additional_environment.rb` を評価するところ) と `config/database.yml` で、Parameter Store の値が環境変数になっていること。パスがなければ何も読み込まないこと。Parameter Store に接続できなければ起動が失敗すること。ローダーが Redmine AWS の活用形 (`redmine_aws/inflections`) を読み込んでいること |
 
-Serverless も、イメージの中で `test/loader_test.rb` を実行します(`bin/test-image`)。そこでは、3 つの役割が、データベースのホスト、そのパスワード、`SECRET_KEY_BASE` を Parameter Store だけから読みます([Serverless の testing.md](https://redmine-kit.github.io/serverless/ja/testing.html#image-tests))。
+Serverless も、イメージの中で `test/loader_test.rb` を実行します (`bin/test-image`)。そこでは、3 つの役割が、データベースのホスト、そのパスワード、`SECRET_KEY_BASE` を Parameter Store だけから読み込みます ([Serverless の testing.md](https://redmine-kit.github.io/serverless/ja/testing.html#image-tests))。
 
 <a id="to-verify"></a>
 
 ## 未確認の事項
 
-- デフォルトの鍵 `aws/ssm` で、IAM が `kms:Decrypt` を許す必要があるか
+- デフォルトのキー `aws/ssm` で、IAM が `kms:Decrypt` を許可する必要があるか
