@@ -9,7 +9,7 @@ Redmine AWS SSM (`redmine_aws_ssm`) is a Redmine plugin that reads settings and 
 ## Rules
 
 - **Before the configuration:** the reading must stay in `boot/` and run from the Railtie's `before_configuration`, before `config/database.yml` and `SECRET_KEY_BASE` are read ([docs/README.md](docs/README.md#when-it-reads)). Do not move it to `init.rb` or `lib/`.
-- **redmine_aws:** the plugin requires [redmine_aws](https://github.com/redmine-kit/redmine_aws), as every Redmine AWS plugin does (`requires_redmine_plugin` in `init.rb`, the gem's dependency), but `boot/` must not use it: it runs before Rails initializes, when Redmine has loaded no plugin yet. The "Status" tab of redmine_aws reads `RedmineAwsSsm.loaded`.
+- **redmine_aws:** the plugin requires [redmine_aws](https://github.com/redmine-kit/redmine_aws), as every Redmine AWS plugin does (`requires_redmine_plugin` in `init.rb`, the gem's dependency), but `boot/` must not use it: it runs before Rails initializes, when Redmine has loaded no plugin yet. It opens the namespace `RedmineAws` early and defines nothing in it but `RedmineAws::Ssm`; redmine_aws loads its own `lib/redmine_aws.rb` from its `init.rb` for that reason. The "Status" tab of redmine_aws reads `RedmineAws::Ssm.loaded`.
 - **Off without its setting:** without `REDMINE_SSM_PATH`, nothing is read.
 - **Never print values:** log and keep only names, never parameter values.
 - **Tests:** `bin/test` runs `test/*_test.rb` in Docker against LocalStack (with `LOCALSTACK_AUTH_TOKEN`) or moto, with coverage; CI runs it and uploads to Codecov. `test/loader_test.rb` must also run alone with the loader required first, as Serverless runs it inside its image.

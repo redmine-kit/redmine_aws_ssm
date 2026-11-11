@@ -2,7 +2,7 @@
 
 # Runs against moto or LocalStack with bin/test, and inside the Serverless
 # image (its bin/test-image), where the loader is required first:
-#   ruby -rbundler/setup -rredmine_aws_ssm/loader loader_test.rb
+#   ruby -rbundler/setup -rredmine_aws/ssm/loader loader_test.rb
 require_relative 'test_helper'
 
 class LoaderTest < Minitest::Test
@@ -23,7 +23,7 @@ class LoaderTest < Minitest::Test
   def test_reads_every_parameter_past_ten
     12.times { |i| put("SSM_ENV_TEST_#{i}", "value-#{i}") }
 
-    names = RedmineAwsSsm::Loader.load(@path, client: @ssm)
+    names = RedmineAws::Ssm::Loader.load(@path, client: @ssm)
 
     assert_equal 12, names.size
     assert_equal 'value-11', ENV.fetch('SSM_ENV_TEST_11')
@@ -31,7 +31,7 @@ class LoaderTest < Minitest::Test
 
   def test_decrypts_secure_strings
     put('SSM_ENV_TEST_SECRET', 'secret-value', type: 'SecureString')
-    RedmineAwsSsm::Loader.load(@path, client: @ssm)
+    RedmineAws::Ssm::Loader.load(@path, client: @ssm)
 
     assert_equal 'secret-value', ENV.fetch('SSM_ENV_TEST_SECRET')
   end
@@ -39,7 +39,7 @@ class LoaderTest < Minitest::Test
   def test_keeps_variables_that_are_set
     ENV['SSM_ENV_TEST_KEPT'] = 'from the environment'
     put('SSM_ENV_TEST_KEPT', 'from SSM')
-    RedmineAwsSsm::Loader.load(@path, client: @ssm)
+    RedmineAws::Ssm::Loader.load(@path, client: @ssm)
 
     assert_equal 'from the environment', ENV.fetch('SSM_ENV_TEST_KEPT')
   end
@@ -49,12 +49,12 @@ class LoaderTest < Minitest::Test
     put('nested/SSM_ENV_TEST_DEEP', 'x')
     put('SSM_ENV_TEST_OK', 'x')
 
-    assert_equal ['SSM_ENV_TEST_OK'], RedmineAwsSsm::Loader.load(@path, client: @ssm)
+    assert_equal ['SSM_ENV_TEST_OK'], RedmineAws::Ssm::Loader.load(@path, client: @ssm)
   end
 
   def test_an_unreachable_service_fails
     client = Aws::SSM::Client.new(endpoint: 'http://127.0.0.1:9', retry_limit: 0, http_open_timeout: 1)
 
-    assert_raises(Seahorse::Client::NetworkingError) { RedmineAwsSsm::Loader.load(@path, client: client) }
+    assert_raises(Seahorse::Client::NetworkingError) { RedmineAws::Ssm::Loader.load(@path, client: client) }
   end
 end
