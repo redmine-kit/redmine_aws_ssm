@@ -6,11 +6,15 @@
 #   bin/test           # every test
 #   bin/test --down    # stop the services
 #   REDMINE_AWS_DIR=<dir> bin/test   # redmine_aws from <dir> (default ../redmine_aws)
+#   RUBY_IMAGE=<image> bin/test      # on another Ruby (default 4.0; the CI also runs Ruby 3.2)
 # Commands that run inside containers are in single quotes on purpose.
 # shellcheck disable=SC2016
 set -euo pipefail
 cd "$(dirname "$0")/.."
-RUBY=ruby:4.0@sha256:a69f361db050bb2c65ec66ef75411bfc4ce2e1d993ba1179fac4e4ba6ecfe91f
+ruby=${RUBY_IMAGE:-ruby:4.0@sha256:a69f361db050bb2c65ec66ef75411bfc4ce2e1d993ba1179fac4e4ba6ecfe91f}
+# A bundle volume per Ruby version (ruby:3.2@sha256:... -> 3.2).
+version=${ruby#ruby:}
+version=${version%%@*}
 compose=(docker compose -f test/compose.yml)
 if [[ -n "${LOCALSTACK_AUTH_TOKEN:-}" ]]; then
   compose+=(--profile localstack)
@@ -33,9 +37,10 @@ echo "SSM for the tests: $backend ($endpoint)"
 "${compose[@]}" up -d --wait "$backend"
 rm -rf coverage
 docker run --rm --network redmine-aws-ssm-test_default -v "$PWD:/work" -w /work \
-  -v redmine-aws-ssm-test-bundle:/usr/local/bundle -e BUNDLE_GEMFILE=Gemfile.test \
+  -v "redmine-aws-ssm-test-bundle-$version:/usr/local/bundle" -e BUNDLE_GEMFILE=Gemfile.test \
   -v "$aws_dir:/redmine_aws:ro" -e REDMINE_AWS_DIR=/redmine_aws \
   -e AWS_ENDPOINT_URL="$endpoint" -e AWS_REGION=us-east-1 -e AWS_ACCESS_KEY_ID=test \
-  -e AWS_SECRET_ACCESS_KEY=test -e PLUGIN_COVERAGE=1 "$RUBY" sh -c '
+  -e AWS_SECRET_ACCESS_KEY=test -e PLUGIN_COVERAGE=1 -e BUNDLER_VERSION=4.0.20 "$ruby" sh -c '
+    gem install bundler -v "$BUNDLER_VERSION" --conservative --silent --no-document &&
     bundle update --quiet --cooldown=3 &&
     bundle exec ruby -Iboot -e "Dir[\"test/*_test.rb\"].each { |file| require \"./#{file}\" }"'

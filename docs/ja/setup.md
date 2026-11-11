@@ -6,7 +6,7 @@ Redmine AWS SSM を使う Redmine に必要なもの (インストール、設�
 
 ## 動作環境
 
-- Redmine 7.0 以降、Ruby 3.2 以降 (Redmine 7.0 が対応するのは Ruby 3.2 から 4.0。CI は Ruby 4.0 でテストし、2026-11-12 に Ruby 3.2.11 でもテストが通ることを確認しました)。
+- Redmine 7.0 以降、Ruby 3.2 以降 (Redmine 7.0 が対応するのは Ruby 3.2 から 4.0。CI は両方でテストします)。
 - SSM を呼び出せる AWS の認証情報を持つプロセス (Lambda では実行ロール、それ以外ではインスタンスプロファイルやタスクロール)。
 
 <a id="installation"></a>
@@ -96,7 +96,7 @@ bundle install
 
 ## テスト
 
-`bin/test` は、Docker でテストを実行します。SSM は、`LOCALSTACK_AUTH_TOKEN` があれば LocalStack、なければ moto です (どちらを使うかを表示します)。ローダーが読み込む活用形を持つ Redmine AWS は、隣のチェックアウト (`../redmine_aws`) か、`REDMINE_AWS_DIR` のディレクトリから使います。CI は、push のたびに組織の LocalStack のトークンで実行し (フォークからの Pull Request は moto)、`boot/` のカバレッジを Codecov に送信します。
+`bin/test` は、Docker でテストを実行します。SSM は、`LOCALSTACK_AUTH_TOKEN` があれば LocalStack、なければ moto です (どちらを使うかを表示します)。ローダーが読み込む活用形を持つ Redmine AWS は、隣のチェックアウト (`../redmine_aws`) か、`REDMINE_AWS_DIR` のディレクトリから使います。CI は、push のたびに、Ruby 3.2 と 4.0 でテストと静的チェックを実行します。テストには組織の LocalStack のトークンを使い (フォークからの Pull Request は moto)、`boot/` のカバレッジを Codecov に送信します。ローカルでは、`RUBY_IMAGE=ruby:3.2 bin/test` (または `bin/lint`) で Ruby 3.2 で実行します。
 
 | テスト | 確認すること |
 | --- | --- |

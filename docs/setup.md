@@ -4,7 +4,7 @@ What a Redmine needs to use Redmine AWS SSM: installation, configuration, the AW
 
 ## Requirements
 
-- Redmine 7.0 or later, on Ruby 3.2 or later (Redmine 7.0 supports Ruby 3.2 to 4.0; the CI tests on Ruby 4.0, and the tests passed on Ruby 3.2.11 on 2026-11-12).
+- Redmine 7.0 or later, on Ruby 3.2 or later (Redmine 7.0 supports Ruby 3.2 to 4.0; the CI tests on both).
 - A process with AWS credentials that can call SSM (an execution role on Lambda, an instance profile or a task role elsewhere).
 
 ## Installation
@@ -78,7 +78,7 @@ The call is made once when each process starts. If the endpoint cannot be reache
 
 ## Tests
 
-`bin/test` runs the tests in Docker, against SSM from LocalStack when `LOCALSTACK_AUTH_TOKEN` is set and from moto otherwise (it prints which), with Redmine AWS, whose inflections the loader requires, from a checkout next to this one (`../redmine_aws`) or from the directory in `REDMINE_AWS_DIR`. CI runs it on every push, with the organization's LocalStack token (pull requests from forks get moto), and sends the coverage of `boot/` to Codecov.
+`bin/test` runs the tests in Docker, against SSM from LocalStack when `LOCALSTACK_AUTH_TOKEN` is set and from moto otherwise (it prints which), with Redmine AWS, whose inflections the loader requires, from a checkout next to this one (`../redmine_aws`) or from the directory in `REDMINE_AWS_DIR`. CI runs the tests and the lint on every push, on Ruby 3.2 and 4.0. The tests use the organization's LocalStack token (pull requests from forks get moto), and CI sends the coverage of `boot/` to Codecov. Locally, `RUBY_IMAGE=ruby:3.2 bin/test` (or `bin/lint`) runs them on Ruby 3.2.
 
 | Test | What it checks |
 | --- | --- |

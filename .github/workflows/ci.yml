@@ -21,7 +21,18 @@ concurrency:
 
 jobs:
   static:
+    name: static (Ruby ${{ matrix.ruby }})
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        # The Rubies of Redmine 7.0 (3.2 to 4.0). The scripts' own Ruby is 4.0.
+        include:
+          - ruby: "3.2"
+            image: ruby:3.2@sha256:d3bcbd845d26ae1efafcc987f641aa9ac796267b9b857e0f196a2b05070c8330
+          - ruby: "4.0"
+    env:
+      RUBY_IMAGE: ${{ matrix.image }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -30,7 +41,17 @@ jobs:
 
   test:
     needs: static
+    name: test (Ruby ${{ matrix.ruby }})
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ruby: "3.2"
+            image: ruby:3.2@sha256:d3bcbd845d26ae1efafcc987f641aa9ac796267b9b857e0f196a2b05070c8330
+          - ruby: "4.0"
+    env:
+      RUBY_IMAGE: ${{ matrix.image }}
     permissions:
       contents: read
       id-token: write # Codecov with OIDC, no token stored
@@ -52,7 +73,8 @@ jobs:
           LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
           REDMINE_AWS_DIR: redmine_aws
       # Not failing the run while the Codecov GitHub App is not installed.
-      - uses: codecov/codecov-action@v7.1.1
+      - if: matrix.ruby == '4.0'
+        uses: codecov/codecov-action@v7.1.1
         with:
           files: coverage/coverage.xml
           use_oidc: true
