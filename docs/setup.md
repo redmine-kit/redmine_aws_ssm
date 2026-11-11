@@ -4,7 +4,7 @@ What a Redmine needs to use Redmine AWS SSM: installation, configuration, the AW
 
 ## Requirements
 
-- Redmine 7.0 or later on Ruby 4.0 or later.
+- Redmine 7.0 or later, on Ruby 3.2 or later (Redmine 7.0 supports Ruby 3.2 to 4.0; the CI tests on Ruby 4.0, and the tests passed on Ruby 3.2.11 on 2026-11-12).
 - A process with AWS credentials that can call SSM (an execution role on Lambda, an instance profile or a task role elsewhere).
 
 ## Installation

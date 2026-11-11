@@ -6,7 +6,7 @@ Redmine AWS SSM を使う Redmine に必要なもの (インストール、設�
 
 ## 動作環境
 
-- Ruby 4.0 以降で動く Redmine 7.0 以降。
+- Redmine 7.0 以降、Ruby 3.2 以降 (Redmine 7.0 が対応するのは Ruby 3.2 から 4.0。CI は Ruby 4.0 でテストし、2026-11-12 に Ruby 3.2.11 でもテストが通ることを確認しました)。
 - SSM を呼び出せる AWS の認証情報を持つプロセス (Lambda では実行ロール、それ以外ではインスタンスプロファイルやタスクロール)。
 
 <a id="installation"></a>

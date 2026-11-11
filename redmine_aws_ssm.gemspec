@@ -11,7 +11,8 @@ Gem::Specification.new do |spec|
   spec.authors = ['Redmine Kit']
   spec.license = 'GPL-2.0-or-later'
   spec.homepage = 'https://github.com/redmine-kit/redmine_aws_ssm'
-  spec.required_ruby_version = '>= 4.0'
+  # The Ruby versions of Redmine 7.0 (its Gemfile: ruby '>= 3.2.0', '< 4.1.0').
+  spec.required_ruby_version = '>= 3.2'
   # The tests are included: Serverless runs them inside its image.
   spec.files = Dir['{init.rb,LICENSE}', 'boot/**/*.rb', 'test/**/*.rb']
   spec.require_paths = ['boot']
