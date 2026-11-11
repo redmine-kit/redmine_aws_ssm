@@ -8,7 +8,7 @@ if ENV['PLUGIN_COVERAGE']
   require 'simplecov'
   require 'simplecov-cobertura'
 
-  module SsmTestCoverage
+  module SSMTestCoverage
     # Writes nothing; the result is still stored for merging.
     class StoreOnly
       def format(_result) = nil
@@ -22,7 +22,7 @@ if ENV['PLUGIN_COVERAGE']
     command_name ENV.fetch('COVERAGE_COMMAND', 'tests')
     track_files 'boot/**/*.rb'
     add_filter '/test/'
-    formatters(child ? [SsmTestCoverage::StoreOnly] : [SimpleCov::Formatter::CoberturaFormatter,
+    formatters(child ? [SSMTestCoverage::StoreOnly] : [SimpleCov::Formatter::CoberturaFormatter,
                                                        SimpleCov::Formatter::HTMLFormatter])
   end
   SimpleCov.print_error_status = false if child

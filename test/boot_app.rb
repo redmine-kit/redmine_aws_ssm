@@ -21,6 +21,6 @@ result = {
   class_body: BootTest::Application::HOST_IN_CLASS_BODY,
   database_host: database['host'],
   database_password: database['password'],
-  loaded: RedmineAws::Ssm.loaded
+  loaded: RedmineAws::SSM.loaded
 }
 puts "BOOT_RESULT #{JSON.generate(result)}"

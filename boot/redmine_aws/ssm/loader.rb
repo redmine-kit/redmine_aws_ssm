@@ -5,10 +5,10 @@ require 'aws-sdk-ssm'
 # RedmineAws is the namespace of the Redmine AWS plugins. redmine_aws defines
 # it in its lib/redmine_aws.rb, which Redmine loads only after this file:
 # Bundler loads boot/ before Rails initializes. So this file opens the module
-# with nothing in it but RedmineAws::Ssm, and redmine_aws loads its file
+# with nothing in it but RedmineAws::SSM, and redmine_aws loads its file
 # explicitly from its init.rb.
 module RedmineAws
-  module Ssm
+  module SSM
     class << self
       # The names read at start-up, for the Status tab of redmine_aws.
       attr_accessor :loaded

@@ -6,11 +6,11 @@ require 'redmine_aws/ssm/loader'
 # config/database.yml and SECRET_KEY_BASE are read after this.
 if defined?(Rails::Railtie)
   module RedmineAws
-    module Ssm
+    module SSM
       class Railtie < ::Rails::Railtie
         config.before_configuration do
           path = ENV.fetch('REDMINE_SSM_PATH', '')
-          Ssm.loaded = Loader.load(path) unless path.empty?
+          SSM.loaded = Loader.load(path) unless path.empty?
         end
       end
     end
