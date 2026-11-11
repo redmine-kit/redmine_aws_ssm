@@ -12,20 +12,15 @@ require 'tmpdir'
 # plugins under lib/redmine_aws/ at once, with the names that redmine_aws
 # adds (costexplorer.rb is RedmineAws::CostExplorer). Checked in a Rails
 # application whose loader is set up as Redmine's (test/namespace_app.rb),
-# with a plugin whose files are named as theirs.
+# with a plugin whose files are named as theirs (test/fixtures/redmine_aws_names).
 class NamespaceTest < Minitest::Test
-  FILES = {
-    'lib/redmine_aws/costexplorer.rb' => "module RedmineAws\n  module CostExplorer\n  end\nend\n",
-    'lib/redmine_aws/ses.rb' => "module RedmineAws\n  module SES\n  end\nend\n",
-    'lib/redmine_aws/ses/receiver.rb' => "module RedmineAws\n  module SES\n    class Receiver\n    end\n  end\nend\n"
-  }.freeze
+  # A plugin whose files are named as the other plugins' (lib/redmine_aws/).
+  FIXTURE = File.expand_path('fixtures/redmine_aws_names', __dir__)
 
+  # A copy, as the application's root: Rails may write into it.
   def setup
     @root = Dir.mktmpdir
-    FILES.each do |path, code|
-      FileUtils.mkdir_p(File.dirname(File.join(@root, path)))
-      File.write(File.join(@root, path), code)
-    end
+    FileUtils.cp_r("#{FIXTURE}/.", @root)
   end
 
   def teardown
