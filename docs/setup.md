@@ -40,7 +40,7 @@ git clone https://github.com/redmine-kit/redmine_aws.git plugins/redmine_aws
 git clone https://github.com/redmine-kit/redmine_aws_ssm.git plugins/redmine_aws_ssm
 ```
 
-Add it as a path gem in `Gemfile.local` (not in the plugin's `Gemfile`, for the reason in [README.md](README.md#when-it-reads)), then install the gems. Bundler must also find `redmine_aws`, which the gemspec requires, so it is added by path too, without loading it (`require: false`; Redmine loads it as a plugin):
+Add it as a path gem in `Gemfile.local` (not in the plugin's `Gemfile`, for the reason in [README.md](README.md#when-it-reads)), then install the gems. Bundler must also find `redmine_aws`, which the gemspec requires, so it is added by path too, without loading it (`require: false`; Redmine loads it as a plugin). List it once, however many Redmine AWS plugins are added by path:
 
 ```ruby
 # Redmine's Gemfile.local
