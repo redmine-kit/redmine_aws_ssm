@@ -1,6 +1,6 @@
 # Setup
 
-What a Redmine needs to use Redmine Serverless SSM: installation, configuration, the AWS resources it expects, IAM permissions and network access. [Serverless](https://redmine-kit.github.io/serverless/) sets all of this up with CloudFormation; this page is for setting it up by hand, or for checking what Serverless creates.
+What a Redmine needs to use Redmine AWS SSM: installation, configuration, the AWS resources it expects, IAM permissions and network access. [Serverless](https://redmine-kit.github.io/serverless/) sets all of this up with CloudFormation; this page is for setting it up by hand, or for checking what Serverless creates.
 
 ## Requirements
 
@@ -9,40 +9,43 @@ What a Redmine needs to use Redmine Serverless SSM: installation, configuration,
 
 ## Installation
 
-1. Put the plugin in `plugins/redmine_serverless_ssm`: install the gem ([Gem](#gem)) or clone the repository ([Without the gem](#without-the-gem)).
+1. Put the plugin in `plugins/redmine_aws_ssm`, and [Redmine AWS](https://redmine-kit.github.io/redmine_aws/), which it requires, in `plugins/redmine_aws`: install the gem ([Gem](#gem)) or clone the repositories ([Without the gem](#without-the-gem)). Redmine loads plugins in alphabetical order, so `redmine_aws` comes first.
 2. Either way, the plugin is a gem line in `Gemfile.local`. That line makes Bundler load the plugin before Rails reads the configuration ([README.md](README.md#when-it-reads)).
 3. No migration is needed.
 
 ### Gem
 
-Each version tag publishes the plugin as a gem to GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`). Installing from GitHub Packages needs a GitHub token with `read:packages`, even for a public package. The gem holds the plugin's run-time files. Redmine loads plugins only from `plugins/`, so the installed gem is linked there:
+Each version tag publishes the plugin as a gem to GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`). Installing from GitHub Packages needs a GitHub token with `read:packages`, even for a public package. The gem holds the plugin's run-time files. The gem depends on the gem `redmine_aws`, so Bundler installs it from the same source. Redmine loads plugins only from `plugins/`, so both installed gems are linked there:
 
 ```ruby
 # Redmine's Gemfile.local
 source 'https://rubygems.pkg.github.com/redmine-kit' do
-  gem 'redmine_serverless_ssm'
+  gem 'redmine_aws_ssm'
 end
 ```
 
 ```sh
 bundle config set --global rubygems.pkg.github.com <user>:<token>   # or the variable BUNDLE_RUBYGEMS__PKG__GITHUB__COM
 bundle install
-ln -s "$(bundle info --path redmine_serverless_ssm)" plugins/redmine_serverless_ssm
+ln -s "$(bundle info --path redmine_aws)" plugins/redmine_aws
+ln -s "$(bundle info --path redmine_aws_ssm)" plugins/redmine_aws_ssm
 ```
 
 ### Without the gem
 
-Clone the repository into `plugins/redmine_serverless_ssm`:
+Clone the repositories into `plugins/redmine_aws` and `plugins/redmine_aws_ssm`:
 
 ```sh
-git clone https://github.com/redmine-kit/redmine_serverless_ssm.git plugins/redmine_serverless_ssm
+git clone https://github.com/redmine-kit/redmine_aws.git plugins/redmine_aws
+git clone https://github.com/redmine-kit/redmine_aws_ssm.git plugins/redmine_aws_ssm
 ```
 
-Add it as a path gem in `Gemfile.local` (not in the plugin's `Gemfile`, for the reason in [README.md](README.md#when-it-reads)), then install the gems:
+Add it as a path gem in `Gemfile.local` (not in the plugin's `Gemfile`, for the reason in [README.md](README.md#when-it-reads)), then install the gems. Bundler must also find `redmine_aws`, which the gemspec requires, so it is added by path too, without loading it (`require: false`; Redmine loads it as a plugin):
 
 ```ruby
 # Redmine's Gemfile.local
-gem 'redmine_serverless_ssm', path: 'plugins/redmine_serverless_ssm'
+gem 'redmine_aws', path: 'plugins/redmine_aws', require: false
+gem 'redmine_aws_ssm', path: 'plugins/redmine_aws_ssm'
 ```
 
 ```sh

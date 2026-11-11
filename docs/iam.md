@@ -6,7 +6,7 @@ Every process that starts Rails with the plugin reads the parameters, so each of
 
 | Action | Resource | Why |
 | --- | --- | --- |
-| `ssm:GetParametersByPath` | `arn:aws:ssm:<region>:<account>:parameter/<instance>/env` and below it | Reading the parameters under `REDMINE_SSM_PATH`. Also the SSM connection test on Redmine Serverless's "Status" tab |
+| `ssm:GetParametersByPath` | `arn:aws:ssm:<region>:<account>:parameter/<instance>/env` and below it | Reading the parameters under `REDMINE_SSM_PATH` |
 | `kms:Decrypt` | The key that encrypts the `SecureString` parameters | Decrypting them |
 
 ## Example policy

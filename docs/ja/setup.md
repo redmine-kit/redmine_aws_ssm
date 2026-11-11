@@ -1,6 +1,6 @@
 # 導入
 
-Redmine Serverless SSM を使う Redmine に要るもの(インストール、設定、前提にする AWS のリソース、IAM の権限、ネットワーク)です。[Serverless](https://redmine-kit.github.io/serverless/ja/) は、これらをすべて CloudFormation で作ります。このページは、手で用意するときや、Serverless が作るものを確認するときのためのものです。
+Redmine AWS SSM を使う Redmine に要るもの(インストール、設定、前提にする AWS のリソース、IAM の権限、ネットワーク)です。[Serverless](https://redmine-kit.github.io/serverless/ja/) は、これらをすべて CloudFormation で作ります。このページは、手で用意するときや、Serverless が作るものを確認するときのためのものです。
 
 <a id="requirements"></a>
 
@@ -13,7 +13,7 @@ Redmine Serverless SSM を使う Redmine に要るもの(インストール、�
 
 ## インストール
 
-1. プラグインを `plugins/redmine_serverless_ssm` に置きます。gem をインストールするか([gem](#gem))、リポジトリをクローンします([gem を使わないとき](#without-the-gem))。
+1. プラグインを `plugins/redmine_aws_ssm` に、これが必要とする [Redmine AWS](https://redmine-kit.github.io/redmine_aws/ja/) を `plugins/redmine_aws` に置きます。gem をインストールするか([gem](#gem))、リポジトリをクローンします([gem を使わないとき](#without-the-gem))。Redmine はプラグインをアルファベット順に読み込むので、`redmine_aws` が先になります。
 2. どちらでも、プラグインは `Gemfile.local` の gem の行になります。この行が、Rails が設定を読む前に、Bundler にプラグインを読み込ませます([README.md](README.md#when-it-reads))。
 3. migration は要りません。
 
@@ -21,36 +21,39 @@ Redmine Serverless SSM を使う Redmine に要るもの(インストール、�
 
 ### gem
 
-バージョンのタグごとに、プラグインを gem として GitHub Packages(`https://rubygems.pkg.github.com/redmine-kit`)に公開します。GitHub Packages からインストールするには、公開のパッケージでも、`read:packages` の権限を持つ GitHub のトークンが要ります。gem は、プラグインを動かすためのファイルを持ちます。Redmine は `plugins/` のプラグインだけを読み込むので、インストールした gem をそこにリンクします。
+バージョンのタグごとに、プラグインを gem として GitHub Packages(`https://rubygems.pkg.github.com/redmine-kit`)に公開します。GitHub Packages からインストールするには、公開のパッケージでも、`read:packages` の権限を持つ GitHub のトークンが要ります。gem は、プラグインを動かすためのファイルを持ちます。gem は gem の `redmine_aws` に依存するので、Bundler が同じソースからインストールします。Redmine は `plugins/` のプラグインだけを読み込むので、インストールした 2 つの gem をそこにリンクします。
 
 ```ruby
 # Redmine の Gemfile.local
 source 'https://rubygems.pkg.github.com/redmine-kit' do
-  gem 'redmine_serverless_ssm'
+  gem 'redmine_aws_ssm'
 end
 ```
 
 ```sh
 bundle config set --global rubygems.pkg.github.com <ユーザー>:<トークン>   # か、変数 BUNDLE_RUBYGEMS__PKG__GITHUB__COM
 bundle install
-ln -s "$(bundle info --path redmine_serverless_ssm)" plugins/redmine_serverless_ssm
+ln -s "$(bundle info --path redmine_aws)" plugins/redmine_aws
+ln -s "$(bundle info --path redmine_aws_ssm)" plugins/redmine_aws_ssm
 ```
 
 <a id="without-the-gem"></a>
 
 ### gem を使わないとき
 
-リポジトリを `plugins/redmine_serverless_ssm` にクローンします。
+リポジトリを `plugins/redmine_aws` と `plugins/redmine_aws_ssm` にクローンします。
 
 ```sh
-git clone https://github.com/redmine-kit/redmine_serverless_ssm.git plugins/redmine_serverless_ssm
+git clone https://github.com/redmine-kit/redmine_aws.git plugins/redmine_aws
+git clone https://github.com/redmine-kit/redmine_aws_ssm.git plugins/redmine_aws_ssm
 ```
 
-`Gemfile.local` に、パスを指定した gem として追加し(プラグインの `Gemfile` に置かない理由は [README.md](README.md#when-it-reads))、gem をインストールします。
+`Gemfile.local` に、パスを指定した gem として追加し(プラグインの `Gemfile` に置かない理由は [README.md](README.md#when-it-reads))、gem をインストールします。gemspec が必要とする `redmine_aws` も Bundler が見つけられるように、パスで追加します。これは読み込ませません (`require: false`。Redmine がプラグインとして読み込みます)。
 
 ```ruby
 # Redmine の Gemfile.local
-gem 'redmine_serverless_ssm', path: 'plugins/redmine_serverless_ssm'
+gem 'redmine_aws', path: 'plugins/redmine_aws', require: false
+gem 'redmine_aws_ssm', path: 'plugins/redmine_aws_ssm'
 ```
 
 ```sh

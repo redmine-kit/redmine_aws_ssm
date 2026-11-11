@@ -1,6 +1,6 @@
-# Redmine Serverless SSM
+# Redmine AWS SSM
 
-Redmine Serverless SSM(`redmine_serverless_ssm`)は、Rails が起動する前に、AWS Systems Manager Parameter Store から設定と秘密の値を環境変数に読み込む Redmine のプラグインです。[Serverless](https://redmine-kit.github.io/serverless/ja/lambda.html#settings-and-secrets-ssm-parameter-store) が Lambda 用のイメージに入れて使い、AWS の認証情報がある Redmine なら、コンテナや仮想マシンでも同じように動きます。Redmine 本体のファイルは書き換えません。今は開発の初期で、読み込みを実装し、Serverless のイメージでテストしています。
+Redmine AWS SSM(`redmine_aws_ssm`)は、Rails が起動する前に、AWS Systems Manager Parameter Store から設定と秘密の値を環境変数に読み込む Redmine のプラグインです。[Serverless](https://redmine-kit.github.io/serverless/ja/lambda.html#settings-and-secrets-ssm-parameter-store) が Lambda 用のイメージに入れて使い、AWS の認証情報がある Redmine なら、コンテナや仮想マシンでも同じように動きます。Redmine 本体のファイルは書き換えません。今は開発の初期で、読み込みを実装し、Serverless のイメージでテストしています。
 
 - [導入](setup.md): 動作環境、インストール、設定、AWS リソース、ネットワーク、テスト
 - [IAM 権限](iam.md): 権限、ポリシーの例、リソースベースのポリシー
@@ -12,7 +12,7 @@ Redmine Serverless SSM(`redmine_serverless_ssm`)は、Rails が起動する前�
 | 機能 | 内容 | 有効にする条件 | 資料 |
 | --- | --- | --- | --- |
 | Parameter Store の設定 | 1 つのパスのすぐ下のパラメーターを、Rails が `config/database.yml` と `SECRET_KEY_BASE` を読む前に、環境変数に読み込む | `REDMINE_SSM_PATH` がある | [setup.md](setup.md#configuration) |
-| 管理画面の名前 | 読んだ名前(値ではない)を `RedmineServerlessSsm.loaded` に残す。[Redmine Serverless](https://redmine-kit.github.io/redmine_serverless/ja/admin.html#status-and-connections) が「ステータス」のタブに出す | 同上 | — |
+| 管理画面の名前 | 読んだ名前(値ではない)を `RedmineAwsSsm.loaded` に残す。[Redmine AWS](https://redmine-kit.github.io/redmine_aws/ja/admin.html#status) が「ステータス」のタブに出す | 同上 | — |
 
 - **1 つのパスを読む:** `REDMINE_SSM_PATH`(例: `/redmine/env/`)のすぐ下のパラメーターを、`GetParametersByPath` で読みます。1 回の呼び出しの 10 件を超えても続きを読み、`SecureString` は復号します。
 - **名前が変数になる:** 名前の最後の部分が変数の名前になります。`/redmine/env/SECRET_KEY_BASE` は `SECRET_KEY_BASE` です。環境変数にできる名前(大文字、数字、`_`)だけを読み、下の階層は読みません。
@@ -25,11 +25,11 @@ Redmine Serverless SSM(`redmine_serverless_ssm`)は、Rails が起動する前�
 
 パラメーターは、Rails が `config/database.yml`(データベースのホストとパスワード)と `SECRET_KEY_BASE` を読む前に、環境に入っている必要があります。プラグインの `init.rb` が動くのは、Redmine がコードの準備をするずっとあとなので、読み込みは `init.rb` には置きません。
 
-1. Redmine の `Gemfile.local` で、プラグインを、パスを指定した gem として追加します(`redmine_serverless_ssm.gemspec`)。プラグインの `Gemfile` では追加できません。Bundler が、`Gemfile.lock` にパスをプラグインのディレクトリから見た形で書き、読むときは Redmine のディレクトリから見るためです。
-2. `config/application.rb` の `Bundler.require` が、`boot/redmine_serverless_ssm.rb` を読み込みます。
+1. Redmine の `Gemfile.local` で、プラグインを、パスを指定した gem として追加します(`redmine_aws_ssm.gemspec`)。プラグインの `Gemfile` では追加できません。Bundler が、`Gemfile.lock` にパスをプラグインのディレクトリから見た形で書き、読むときは Redmine のディレクトリから見るためです。
+2. `config/application.rb` の `Bundler.require` が、`boot/redmine_aws_ssm.rb` を読み込みます。
 3. アプリのクラスを定義するときに、Railtie の `before_configuration` がパラメーターを読みます。クラスの本体(`config/additional_environment.rb` を含む)より前で、`config/database.yml` を読むより前です。
 
-コードは `lib/` ではなく `boot/` に置きます。Redmine はプラグインの `lib/` を自動の読み込みの対象にしますが、Bundler がもう読み込んだファイルを、自動の読み込みでもう一度読ませないためです。`init.rb` はプラグインの登録だけをして、管理画面の一覧に出します。
+コードは `lib/` ではなく `boot/` に置きます。Redmine はプラグインの `lib/` を自動の読み込みの対象にしますが、Bundler がもう読み込んだファイルを、自動の読み込みでもう一度読ませないためです。`init.rb` はプラグインの登録だけをして、管理画面の一覧に出します。ほかの Redmine AWS のプラグインと同じく、[Redmine AWS](https://redmine-kit.github.io/redmine_aws/ja/) を必要とします (`init.rb` の `requires_redmine_plugin` と、gem の依存)。ただし、読み込みはそれを使いません。Redmine がそのプラグインのコードを読み込むのは、パラメーターを読んだあとだからです。`Bundler.require` は Gemfile にある gem だけを読み込み、その依存は読み込まないので、gem の `redmine_aws` が早く読み込まれることはありません。
 
 <a id="each-process"></a>
 
@@ -51,4 +51,4 @@ Parameter Store がエラーを返したとき(経路がない、権限がない
 
 ## ライセンス
 
-Redmine Serverless SSM は、GNU General Public License バージョン 2 またはそれ以降のバージョンで公開しています。[LICENSE](../../LICENSE) を参照してください。Redmine の非公式のプラグインです。
+Redmine AWS SSM は、GNU General Public License バージョン 2 またはそれ以降のバージョンで公開しています。[LICENSE](../../LICENSE) を参照してください。Redmine の非公式のプラグインです。

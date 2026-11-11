@@ -1,6 +1,6 @@
-# Redmine Serverless SSM
+# Redmine AWS SSM
 
-Redmine Serverless SSM (`redmine_serverless_ssm`) is a Redmine plugin that reads settings and secrets from AWS Systems Manager Parameter Store into environment variables before Rails starts. [Serverless](https://redmine-kit.github.io/serverless/lambda.html#settings-and-secrets-ssm-parameter-store) installs it in the Lambda image, and it works the same way on any Redmine that has AWS credentials (containers, virtual machines). It does not modify Redmine's own files. The plugin is in early development: the loading is implemented and tested in Serverless's image.
+Redmine AWS SSM (`redmine_aws_ssm`) is a Redmine plugin that reads settings and secrets from AWS Systems Manager Parameter Store into environment variables before Rails starts. [Serverless](https://redmine-kit.github.io/serverless/lambda.html#settings-and-secrets-ssm-parameter-store) installs it in the Lambda image, and it works the same way on any Redmine that has AWS credentials (containers, virtual machines). It does not modify Redmine's own files. The plugin is in early development: the loading is implemented and tested in Serverless's image.
 
 - [Setup](setup.md): requirements, installation, configuration, AWS resources, network, tests
 - [IAM permissions](iam.md): permissions, example policy, resource-based policies
@@ -10,7 +10,7 @@ Redmine Serverless SSM (`redmine_serverless_ssm`) is a Redmine plugin that reads
 | Feature | Contents | Enabled when | Page |
 | --- | --- | --- | --- |
 | Settings from Parameter Store | Reads every parameter directly under one path into environment variables, before Rails reads `config/database.yml` and `SECRET_KEY_BASE` | `REDMINE_SSM_PATH` is set | [setup.md](setup.md#configuration) |
-| Names on the administration page | `RedmineServerlessSsm.loaded` holds the names read (not the values); [Redmine Serverless](https://redmine-kit.github.io/redmine_serverless/admin.html#status-and-connections) shows them on the "Status" tab | Same as above | — |
+| Names on the administration page | `RedmineAwsSsm.loaded` holds the names read (not the values); [Redmine AWS](https://redmine-kit.github.io/redmine_aws/admin.html#status) shows them on the "Status" tab | Same as above | — |
 
 - **Reads one path:** It reads the parameters directly under `REDMINE_SSM_PATH` (for example `/redmine/env/`) with `GetParametersByPath`, continuing past the 10 parameters of one call, and decrypts `SecureString` parameters.
 - **Names become variables:** The last part of each name is the variable name: `/redmine/env/SECRET_KEY_BASE` becomes `SECRET_KEY_BASE`. Only names that can be environment variables (capital letters, digits and `_`) are read, and deeper paths are not.
@@ -21,11 +21,11 @@ Redmine Serverless SSM (`redmine_serverless_ssm`) is a Redmine plugin that reads
 
 The parameters must be in the environment before Rails reads `config/database.yml` (the database host and password) and `SECRET_KEY_BASE`. A plugin's `init.rb` runs much later, when Redmine prepares its code, so the reading is not in `init.rb`.
 
-1. Redmine's `Gemfile.local` adds the plugin as a gem by path (`redmine_serverless_ssm.gemspec`). The plugin's own `Gemfile` cannot do it: Bundler would write the path to `Gemfile.lock` relative to the plugin's directory, and read it back relative to Redmine's.
-2. `Bundler.require` in `config/application.rb` loads `boot/redmine_serverless_ssm.rb`.
+1. Redmine's `Gemfile.local` adds the plugin as a gem by path (`redmine_aws_ssm.gemspec`). The plugin's own `Gemfile` cannot do it: Bundler would write the path to `Gemfile.lock` relative to the plugin's directory, and read it back relative to Redmine's.
+2. `Bundler.require` in `config/application.rb` loads `boot/redmine_aws_ssm.rb`.
 3. When the application class is defined, its Railtie's `before_configuration` reads the parameters. This is before the class body (including `config/additional_environment.rb`) and before `config/database.yml` is read.
 
-The code is in `boot/`, not `lib/`: Redmine adds a plugin's `lib/` to the autoloaded paths, and a file that Bundler has already required must not be autoloaded again. `init.rb` only registers the plugin, so that it is listed in the administration pages.
+The code is in `boot/`, not `lib/`: Redmine adds a plugin's `lib/` to the autoloaded paths, and a file that Bundler has already required must not be autoloaded again. `init.rb` only registers the plugin, so that it is listed in the administration pages. Like every Redmine AWS plugin, it requires [Redmine AWS](https://redmine-kit.github.io/redmine_aws/) (`requires_redmine_plugin` in `init.rb`, and the gem's dependency), but the reading does not use it: Redmine loads that plugin's code only after the parameters are read. `Bundler.require` loads only the gems in the Gemfiles, not their dependencies, so the gem `redmine_aws` is not loaded early.
 
 ## Each process
 
@@ -41,4 +41,4 @@ If Parameter Store returns an error (no route, no permission), the plugin raises
 
 ## License
 
-Redmine Serverless SSM is released under the GNU General Public License, version 2 or (at your option) any later version. See [LICENSE](../LICENSE). An unofficial Redmine plugin.
+Redmine AWS SSM is released under the GNU General Public License, version 2 or (at your option) any later version. See [LICENSE](../LICENSE). An unofficial Redmine plugin.
