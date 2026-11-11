@@ -5,6 +5,9 @@
 source 'https://rubygems.org'
 
 gem 'aws-sdk-ssm', '~> 1.0'
+# redmine_aws, which the gem requires and whose inflections boot/ loads: a
+# checkout next to this one, or REDMINE_AWS_DIR (bin/test).
+gem 'redmine_aws', path: ENV.fetch('REDMINE_AWS_DIR', '../redmine_aws'), require: false
 gem 'minitest', '~> 6.0'
 # The boot test defines a Rails application, as Redmine 7.0 does (Rails 8.1).
 gem 'railties', '~> 8.1.0'

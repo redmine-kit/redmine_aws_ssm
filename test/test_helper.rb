@@ -5,4 +5,4 @@
 require_relative 'coverage'
 require 'minitest/autorun'
 require 'securerandom'
-require 'redmine_aws/ssm/loader'
+require 'redmine_aws_ssm/loader'

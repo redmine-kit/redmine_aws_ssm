@@ -49,6 +49,7 @@ class BootTest < Minitest::Test
     assert_equal 'db.example.internal', result['database_host']
     assert_equal 'from-ssm', result['database_password']
     assert_equal %w[REDMINE_DB_HOST REDMINE_DB_PASSWORD], result['loaded'].sort
+    assert result['inflections'], 'redmine_aws/inflections is not loaded'
   end
 
   def test_nothing_is_read_without_the_path

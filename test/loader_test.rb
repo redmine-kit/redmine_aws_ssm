@@ -2,7 +2,7 @@
 
 # Runs against moto or LocalStack with bin/test, and inside the Serverless
 # image (its bin/test-image), where the loader is required first:
-#   ruby -rbundler/setup -rredmine_aws/ssm/loader loader_test.rb
+#   ruby -rbundler/setup -rredmine_aws_ssm/loader loader_test.rb
 require_relative 'test_helper'
 
 class LoaderTest < Minitest::Test

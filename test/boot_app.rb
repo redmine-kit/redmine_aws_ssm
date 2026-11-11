@@ -21,6 +21,8 @@ result = {
   class_body: BootTest::Application::HOST_IN_CLASS_BODY,
   database_host: database['host'],
   database_password: database['password'],
-  loaded: RedmineAws::SSM.loaded
+  loaded: RedmineAws::SSM.loaded,
+  # redmine_aws's inflections, which the loader requires first.
+  inflections: $LOADED_FEATURES.any? { |file| file.end_with?('/boot/redmine_aws/inflections.rb') }
 }
 puts "BOOT_RESULT #{JSON.generate(result)}"

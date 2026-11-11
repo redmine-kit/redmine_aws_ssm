@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+# The constant names of the Redmine AWS plugins' files (lib/redmine_aws/ses.rb
+# defines RedmineAws::SES), from redmine_aws. Required before RedmineAws is
+# defined here: Rails' code loader then names those files when it sets up,
+# before redmine_aws's init.rb runs.
+require 'redmine_aws/inflections'
 require 'aws-sdk-ssm'
 
 # RedmineAws is the namespace of the Redmine AWS plugins. redmine_aws defines
