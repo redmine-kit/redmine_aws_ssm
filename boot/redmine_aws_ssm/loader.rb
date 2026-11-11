@@ -31,11 +31,13 @@ module RedmineAws
       # SecureString parameters. Variables that are already set are kept, so
       # that local tests can pass values directly. Names that cannot be
       # environment variables are skipped. Returns the names read, in order.
+      # The path may end with / or not, as Parameter Store accepts both.
       def load(path, client: ::Aws::SSM::Client.new)
+        prefix = path.end_with?('/') ? path : "#{path}/"
         names = []
         client.get_parameters_by_path(path: path, recursive: false, with_decryption: true).each_page do |page|
           page.parameters.each do |parameter|
-            name = parameter.name.delete_prefix(path)
+            name = parameter.name.delete_prefix(prefix)
             next unless NAME.match?(name)
 
             names << name

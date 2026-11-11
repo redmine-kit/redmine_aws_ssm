@@ -52,6 +52,13 @@ class LoaderTest < Minitest::Test
     assert_equal ['SSM_ENV_TEST_OK'], RedmineAws::SSM::Loader.load(@path, client: @ssm)
   end
 
+  def test_reads_a_path_without_the_last_slash
+    put('SSM_ENV_TEST_NO_SLASH', 'from SSM')
+
+    assert_equal ['SSM_ENV_TEST_NO_SLASH'], RedmineAws::SSM::Loader.load(@path.delete_suffix('/'), client: @ssm)
+    assert_equal 'from SSM', ENV.fetch('SSM_ENV_TEST_NO_SLASH')
+  end
+
   def test_an_unreachable_service_fails
     client = Aws::SSM::Client.new(endpoint: 'http://127.0.0.1:9', retry_limit: 0, http_open_timeout: 1)
 
