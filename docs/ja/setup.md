@@ -96,7 +96,7 @@ bundle install
 
 ## テスト
 
-`bin/test` は、Docker でテストを実行します。SSM は、`LOCALSTACK_AUTH_TOKEN` があれば LocalStack、なければ moto です (どちらを使うかを表示します)。ローダーが読み込む活用形を持つ Redmine AWS は、隣のチェックアウト (`../redmine_aws`) か、`REDMINE_AWS_DIR` のディレクトリから使います。CI は、push のたびに、Ruby 3.2 と 4.0 でテストと静的チェックを実行します。テストには組織の LocalStack のトークンを使い (フォークからの Pull Request は moto)、`boot/` のカバレッジを Codecov に送信します。ローカルでは、`RUBY_IMAGE=ruby:3.2 bin/test` (または `bin/lint`) で Ruby 3.2 で実行します。
+`bin/test` は、Docker でテストを実行します。SSM は、`LOCALSTACK_AUTH_TOKEN` があれば LocalStack、なければ moto です (どちらを使うかを表示します)。ローダーが読み込む活用形を持つ Redmine AWS は、隣のチェックアウト (`../redmine_aws`) か、`REDMINE_AWS_DIR` のディレクトリから使います。CI は、push のたびに、Ruby 3.2 と 4.0 でテストと静的チェックを実行します。テストには組織の LocalStack のトークンを使い (フォークからの Pull Request は moto)、`boot/` のカバレッジを Codecov に送信します。ローカルでは、`TEST_RUBY=3.2 bin/test` (または `bin/lint`) で Ruby 3.2 で実行します。
 
 | テスト | 確認すること |
 | --- | --- |

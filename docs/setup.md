@@ -78,7 +78,7 @@ The call is made once when each process starts. If the endpoint cannot be reache
 
 ## Tests
 
-`bin/test` runs the tests in Docker, against SSM from LocalStack when `LOCALSTACK_AUTH_TOKEN` is set and from moto otherwise (it prints which), with Redmine AWS, whose inflections the loader requires, from a checkout next to this one (`../redmine_aws`) or from the directory in `REDMINE_AWS_DIR`. CI runs the tests and the lint on every push, on Ruby 3.2 and 4.0. The tests use the organization's LocalStack token (pull requests from forks get moto), and CI sends the coverage of `boot/` to Codecov. Locally, `RUBY_IMAGE=ruby:3.2 bin/test` (or `bin/lint`) runs them on Ruby 3.2.
+`bin/test` runs the tests in Docker, against SSM from LocalStack when `LOCALSTACK_AUTH_TOKEN` is set and from moto otherwise (it prints which), with Redmine AWS, whose inflections the loader requires, from a checkout next to this one (`../redmine_aws`) or from the directory in `REDMINE_AWS_DIR`. CI runs the tests and the lint on every push, on Ruby 3.2 and 4.0. The tests use the organization's LocalStack token (pull requests from forks get moto), and CI sends the coverage of `boot/` to Codecov. Locally, `TEST_RUBY=3.2 bin/test` (or `bin/lint`) runs them on Ruby 3.2.
 
 | Test | What it checks |
 | --- | --- |

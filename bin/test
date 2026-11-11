@@ -6,15 +6,15 @@
 #   bin/test           # every test
 #   bin/test --down    # stop the services
 #   REDMINE_AWS_DIR=<dir> bin/test   # redmine_aws from <dir> (default ../redmine_aws)
-#   RUBY_IMAGE=<image> bin/test      # on another Ruby (default 4.0; the CI also runs Ruby 3.2)
+#   TEST_RUBY=3.2 bin/test           # on Ruby 3.2 (default 4.0), as the CI also does
 # Commands that run inside containers are in single quotes on purpose.
 # shellcheck disable=SC2016
 set -euo pipefail
 cd "$(dirname "$0")/.."
-ruby=${RUBY_IMAGE:-ruby:4.0@sha256:a69f361db050bb2c65ec66ef75411bfc4ce2e1d993ba1179fac4e4ba6ecfe91f}
-# A bundle volume per Ruby version (ruby:3.2@sha256:... -> 3.2).
-version=${ruby#ruby:}
-version=${version%%@*}
+# The Ruby image, pinned in test/ruby-<version>.Dockerfile (Dependabot
+# updates it), with a bundle volume per Ruby version.
+version=${TEST_RUBY:-4.0}
+ruby=$(sed -n 's/^FROM //p' "test/ruby-$version.Dockerfile")
 compose=(docker compose -f test/compose.yml)
 if [[ -n "${LOCALSTACK_AUTH_TOKEN:-}" ]]; then
   compose+=(--profile localstack)
