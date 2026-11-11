@@ -33,15 +33,23 @@ class NamespaceTest < Minitest::Test
   end
 
   def test_the_loader_names_the_plugins_files_after_the_boot_file
-    env = { 'NAMESPACE_TEST_ROOT' => @root, 'COVERAGE_COMMAND' => "namespace #{name}", 'REDMINE_SSM_PATH' => nil }
-    out, err, status = Open3.capture3(env, RbConfig.ruby, '-I', File.expand_path('../boot', __dir__),
-                                      File.expand_path('namespace_app.rb', __dir__))
-    assert status.success?, err
+    result = run_namespace_app
 
-    result = JSON.parse(out[/^NAMESPACE_RESULT (.*)$/, 1])
     assert_equal %w[RedmineAws::Admin RedmineAws::CostExplorer RedmineAws::SES RedmineAws::SES::Receiver],
                  result['names']
     assert_match(/\A\d+\.\d+\.\d+\z/, result['version'])
     assert_empty result['loaded']
+  end
+
+  private
+
+  # Runs test/namespace_app.rb in a process of its own, with boot/ on the load
+  # path, and returns what it printed after NAMESPACE_RESULT.
+  def run_namespace_app
+    env = { 'NAMESPACE_TEST_ROOT' => @root, 'COVERAGE_COMMAND' => "namespace #{name}", 'REDMINE_SSM_PATH' => nil }
+    out, err, status = Open3.capture3(env, RbConfig.ruby, '-I', File.expand_path('../boot', __dir__),
+                                      File.expand_path('namespace_app.rb', __dir__))
+    assert status.success?, err
+    JSON.parse(out[/^NAMESPACE_RESULT (.*)$/, 1])
   end
 end

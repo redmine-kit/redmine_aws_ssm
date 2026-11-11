@@ -34,17 +34,19 @@ module RedmineAws
       # The path may end with / or not, as Parameter Store accepts both.
       def load(path, client: ::Aws::SSM::Client.new)
         prefix = path.end_with?('/') ? path : "#{path}/"
-        names = []
-        client.get_parameters_by_path(path: path, recursive: false, with_decryption: true).each_page do |page|
-          page.parameters.each do |parameter|
-            name = parameter.name.delete_prefix(prefix)
-            next unless NAME.match?(name)
+        parameters(path, client).filter_map do |parameter|
+          name = parameter.name.delete_prefix(prefix)
+          next unless NAME.match?(name)
 
-            names << name
-            ENV[name] ||= parameter.value
-          end
+          ENV[name] ||= parameter.value
+          name
         end
-        names
+      end
+
+      # The parameters directly under path, decrypted, from every page.
+      def parameters(path, client)
+        pages = client.get_parameters_by_path(path: path, recursive: false, with_decryption: true).each_page
+        pages.flat_map(&:parameters)
       end
     end
   end
