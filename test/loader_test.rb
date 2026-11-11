@@ -2,7 +2,7 @@
 
 # Runs against moto or LocalStack with bin/test, and inside the Serverless
 # image (its bin/test-image), where the loader is required first:
-#   ruby -rbundler/setup -rredmine_serverless_ssm/loader loader_test.rb
+#   ruby -rbundler/setup -rredmine_aws_ssm/loader loader_test.rb
 require_relative 'test_helper'
 
 class LoaderTest < Minitest::Test
@@ -21,40 +21,40 @@ class LoaderTest < Minitest::Test
   end
 
   def test_reads_every_parameter_past_ten
-    12.times { |i| put("SERVERLESS_ENV_TEST_#{i}", "value-#{i}") }
+    12.times { |i| put("SSM_ENV_TEST_#{i}", "value-#{i}") }
 
-    names = RedmineServerlessSsm::Loader.load(@path, client: @ssm)
+    names = RedmineAwsSsm::Loader.load(@path, client: @ssm)
 
     assert_equal 12, names.size
-    assert_equal 'value-11', ENV.fetch('SERVERLESS_ENV_TEST_11')
+    assert_equal 'value-11', ENV.fetch('SSM_ENV_TEST_11')
   end
 
   def test_decrypts_secure_strings
-    put('SERVERLESS_ENV_TEST_SECRET', 'secret-value', type: 'SecureString')
-    RedmineServerlessSsm::Loader.load(@path, client: @ssm)
+    put('SSM_ENV_TEST_SECRET', 'secret-value', type: 'SecureString')
+    RedmineAwsSsm::Loader.load(@path, client: @ssm)
 
-    assert_equal 'secret-value', ENV.fetch('SERVERLESS_ENV_TEST_SECRET')
+    assert_equal 'secret-value', ENV.fetch('SSM_ENV_TEST_SECRET')
   end
 
   def test_keeps_variables_that_are_set
-    ENV['SERVERLESS_ENV_TEST_KEPT'] = 'from the environment'
-    put('SERVERLESS_ENV_TEST_KEPT', 'from SSM')
-    RedmineServerlessSsm::Loader.load(@path, client: @ssm)
+    ENV['SSM_ENV_TEST_KEPT'] = 'from the environment'
+    put('SSM_ENV_TEST_KEPT', 'from SSM')
+    RedmineAwsSsm::Loader.load(@path, client: @ssm)
 
-    assert_equal 'from the environment', ENV.fetch('SERVERLESS_ENV_TEST_KEPT')
+    assert_equal 'from the environment', ENV.fetch('SSM_ENV_TEST_KEPT')
   end
 
   def test_skips_names_that_cannot_be_variables_and_deeper_paths
     put('lower_case', 'x')
-    put('nested/SERVERLESS_ENV_TEST_DEEP', 'x')
-    put('SERVERLESS_ENV_TEST_OK', 'x')
+    put('nested/SSM_ENV_TEST_DEEP', 'x')
+    put('SSM_ENV_TEST_OK', 'x')
 
-    assert_equal ['SERVERLESS_ENV_TEST_OK'], RedmineServerlessSsm::Loader.load(@path, client: @ssm)
+    assert_equal ['SSM_ENV_TEST_OK'], RedmineAwsSsm::Loader.load(@path, client: @ssm)
   end
 
   def test_an_unreachable_service_fails
     client = Aws::SSM::Client.new(endpoint: 'http://127.0.0.1:9', retry_limit: 0, http_open_timeout: 1)
 
-    assert_raises(Seahorse::Client::NetworkingError) { RedmineServerlessSsm::Loader.load(@path, client: client) }
+    assert_raises(Seahorse::Client::NetworkingError) { RedmineAwsSsm::Loader.load(@path, client: client) }
   end
 end

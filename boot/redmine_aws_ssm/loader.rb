@@ -2,7 +2,7 @@
 
 require 'aws-sdk-ssm'
 
-module RedmineServerlessSsm
+module RedmineAwsSsm
   class << self
     # The names read at start-up, for the administration pages.
     attr_accessor :loaded

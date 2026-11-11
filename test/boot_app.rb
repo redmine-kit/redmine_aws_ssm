@@ -6,7 +6,7 @@
 require_relative 'coverage'
 require 'json'
 require 'rails'
-require 'redmine_serverless_ssm'
+require 'redmine_aws_ssm'
 
 module BootTest
   class Application < Rails::Application
@@ -21,6 +21,6 @@ result = {
   class_body: BootTest::Application::HOST_IN_CLASS_BODY,
   database_host: database['host'],
   database_password: database['password'],
-  loaded: RedmineServerlessSsm.loaded
+  loaded: RedmineAwsSsm.loaded
 }
 puts "BOOT_RESULT #{JSON.generate(result)}"

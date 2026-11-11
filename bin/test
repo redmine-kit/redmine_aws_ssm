@@ -25,8 +25,8 @@ fi
 echo "SSM for the tests: $backend ($endpoint)"
 "${compose[@]}" up -d --wait "$backend"
 rm -rf coverage
-docker run --rm --network redmine-serverless-ssm-test_default -v "$PWD:/work" -w /work \
-  -v redmine-serverless-ssm-test-bundle:/usr/local/bundle -e BUNDLE_GEMFILE=Gemfile.test \
+docker run --rm --network redmine-aws-ssm-test_default -v "$PWD:/work" -w /work \
+  -v redmine-aws-ssm-test-bundle:/usr/local/bundle -e BUNDLE_GEMFILE=Gemfile.test \
   -e AWS_ENDPOINT_URL="$endpoint" -e AWS_REGION=us-east-1 -e AWS_ACCESS_KEY_ID=test \
   -e AWS_SECRET_ACCESS_KEY=test -e PLUGIN_COVERAGE=1 "$RUBY" sh -c '
     bundle update --quiet --cooldown=3 &&
