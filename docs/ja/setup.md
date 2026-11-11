@@ -96,7 +96,7 @@ bundle install
 
 ## テスト
 
-`bin/test` が、Docker の中でテストを実行します。`LOCALSTACK_AUTH_TOKEN` があれば LocalStack の、なければ moto の SSM に対して動きます(どちらかを表示します)。ローダーが読み込む Redmine AWS の inflection は、隣のチェックアウト (`../redmine_aws`) か、`REDMINE_AWS_DIR` のディレクトリから使います。CI は、push のたびに、組織の LocalStack のトークンで実行し(フォークからのプルリクエストは moto)、`boot/` のカバレッジを Codecov に送ります。
+`bin/test` が、Docker の中でテストを実行します。`LOCALSTACK_AUTH_TOKEN` があれば LocalStack の、なければ moto の SSM に対して動きます(どちらかを表示します)。ローダーが読み込む Redmine AWS の inflection は、隣のチェックアウト (`../redmine_aws`) か、`REDMINE_AWS_DIR` のディレクトリから使います。CI は、push のたびに、組織の LocalStack のトークンで実行し(フォークからの Pull Request は moto)、`boot/` のカバレッジを Codecov に送ります。
 
 | テスト | 確認する内容 |
 | --- | --- |
