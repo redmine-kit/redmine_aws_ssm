@@ -16,6 +16,9 @@ Gem::Specification.new do |spec|
   spec.files = Dir['{init.rb,LICENSE}', 'boot/**/*.rb', 'test/**/*.rb']
   spec.require_paths = ['boot']
   spec.add_dependency 'aws-sdk-ssm', '~> 1.0'
+  # Required by every Redmine AWS plugin. Bundler.require does not load a
+  # dependency, so boot/ runs without it.
+  spec.add_dependency 'redmine_aws', '~> 0.1'
   spec.metadata['github_repo'] = 'ssh://github.com/redmine-kit/redmine_aws_ssm'
   spec.metadata['rubygems_mfa_required'] = 'true'
 end
