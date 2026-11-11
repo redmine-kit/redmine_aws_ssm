@@ -25,7 +25,7 @@ Redmine AWS SSM (`redmine_aws_ssm`) は、Rails が起動する前に、AWS Syst
 
 パラメーターは、Rails が `config/database.yml` (データベースのホストとパスワード) と `SECRET_KEY_BASE` を読み込む前に、環境変数になっている必要があります。プラグインの `init.rb` が実行されるのは、Redmine がコードを準備するずっとあとなので、読み込みは `init.rb` には置きません。
 
-1. Redmine の `Gemfile.local` で、プラグインをパスを指定した gem として追加します (`redmine_aws_ssm.gemspec`)。プラグインの `Gemfile` では追加できません。Bundler は、`Gemfile.lock` にパスをプラグインのディレクトリからの相対パスで書き、読み込むときは Redmine のディレクトリからの相対パスとして扱うからです。
+1. Redmine の `Gemfile.local` で、プラグインを gem として追加します (`redmine_aws_ssm.gemspec`)。GitHub Packages から追加するか、クローンしたときはパスを指定して追加します。gem のときは `bundle install` でプラグインのファイルがインストールされるので、この行を書けるのは `Gemfile.local` だけです。クローンしたときも、パスを指定した同じ行を使います。Bundler は 2 つのソースから指定された gem を受け付けないので、プラグインの `Gemfile` では追加しません。
 2. `config/application.rb` の `Bundler.require` が、`boot/redmine_aws_ssm.rb` を読み込みます。
 3. アプリケーションクラスを定義するときに、Railtie の `before_configuration` がパラメーターを読み込みます。クラスの本体 (`config/additional_environment.rb` を含む) より前で、`config/database.yml` を読み込むより前です。
 

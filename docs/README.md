@@ -21,7 +21,7 @@ Redmine AWS SSM (`redmine_aws_ssm`) is a Redmine plugin that reads settings and 
 
 The parameters must be in the environment before Rails reads `config/database.yml` (the database host and password) and `SECRET_KEY_BASE`. A plugin's `init.rb` runs much later, when Redmine prepares its code, so the reading is not in `init.rb`.
 
-1. Redmine's `Gemfile.local` adds the plugin as a gem by path (`redmine_aws_ssm.gemspec`). The plugin's own `Gemfile` cannot do it: Bundler would write the path to `Gemfile.lock` relative to the plugin's directory, and read it back relative to Redmine's.
+1. Redmine's `Gemfile.local` adds the plugin as a gem (`redmine_aws_ssm.gemspec`): from GitHub Packages, or by path for a checkout. With the gem, the plugin's files come from `bundle install`, so the line can only be in `Gemfile.local`; a checkout uses the same line with a path. The plugin's own `Gemfile` does not add it as well, because Bundler refuses a gem declared from two sources.
 2. `Bundler.require` in `config/application.rb` loads `boot/redmine_aws_ssm.rb`.
 3. When the application class is defined, its Railtie's `before_configuration` reads the parameters. This is before the class body (including `config/additional_environment.rb`) and before `config/database.yml` is read.
 
