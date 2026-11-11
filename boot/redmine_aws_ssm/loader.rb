@@ -30,15 +30,16 @@ module RedmineAws
       # ENV, with the last part of the name as the variable name, and decrypts
       # SecureString parameters. Variables that are already set are kept, so
       # that local tests can pass values directly. Names that cannot be
-      # environment variables are skipped. Returns the names read, in order.
+      # environment variables are skipped. Returns the names it set, in order:
+      # not the kept ones, whose values did not come from Parameter Store.
       # The path may end with / or not, as Parameter Store accepts both.
       def load(path, client: ::Aws::SSM::Client.new)
         prefix = path.end_with?('/') ? path : "#{path}/"
         parameters(path, client).filter_map do |parameter|
           name = parameter.name.delete_prefix(prefix)
-          next unless NAME.match?(name)
+          next if !NAME.match?(name) || ENV.key?(name)
 
-          ENV[name] ||= parameter.value
+          ENV[name] = parameter.value
           name
         end
       end

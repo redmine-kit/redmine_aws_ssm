@@ -36,12 +36,16 @@ class LoaderTest < Minitest::Test
     assert_equal 'secret-value', ENV.fetch('SSM_ENV_TEST_SECRET')
   end
 
-  def test_keeps_variables_that_are_set
+  # A kept variable is not in the names: the Status tab of redmine_aws lists
+  # them as read from Parameter Store.
+  def test_keeps_variables_that_are_set_and_does_not_list_them
     ENV['SSM_ENV_TEST_KEPT'] = 'from the environment'
     put('SSM_ENV_TEST_KEPT', 'from SSM')
-    RedmineAws::SSM::Loader.load(@path, client: @ssm)
+    put('SSM_ENV_TEST_SET', 'from SSM')
+    names = RedmineAws::SSM::Loader.load(@path, client: @ssm)
 
     assert_equal 'from the environment', ENV.fetch('SSM_ENV_TEST_KEPT')
+    assert_equal ['SSM_ENV_TEST_SET'], names
   end
 
   def test_skips_names_that_cannot_be_variables_and_deeper_paths

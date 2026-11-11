@@ -10,11 +10,11 @@ Redmine AWS SSM (`redmine_aws_ssm`) is a Redmine plugin that reads settings and 
 | Feature | Contents | Enabled when | Page |
 | --- | --- | --- | --- |
 | Settings from Parameter Store | Reads every parameter directly under one path into environment variables, before Rails reads `config/database.yml` and `SECRET_KEY_BASE` | `REDMINE_SSM_PATH` is set | [setup.md](setup.md#configuration) |
-| Names on the administration page | `RedmineAws::SSM.loaded` holds the names read (not the values); [Redmine AWS](https://redmine-kit.github.io/redmine_aws/admin.html#status) shows them on the "Status" tab | Same as above | — |
+| Names on the administration page | `RedmineAws::SSM.loaded` holds the names of the variables set from Parameter Store (not the values); [Redmine AWS](https://redmine-kit.github.io/redmine_aws/admin.html#status) shows them on the "Status" tab | Same as above | — |
 
 - **Reads one path:** It reads the parameters directly under `REDMINE_SSM_PATH` (for example `/redmine/env/`; the last `/` may be left out) with `GetParametersByPath`, continuing past the 10 parameters of one call, and decrypts `SecureString` parameters.
 - **Names become variables:** The last part of each name is the variable name: `/redmine/env/SECRET_KEY_BASE` becomes `SECRET_KEY_BASE`. Only names that can be environment variables (capital letters, digits and `_`) are read, and deeper paths are not.
-- **Variables that are set are kept:** A variable that already exists is not replaced, so that local tests can pass values directly.
+- **Variables that are set are kept:** A variable that already exists is not replaced, so that local tests can pass values directly, and its name is not in the names shown on the administration page.
 - **Fails early:** If Parameter Store cannot be reached, Redmine does not start, instead of starting without its secrets.
 
 ## When it reads

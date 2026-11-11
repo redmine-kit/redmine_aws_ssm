@@ -12,11 +12,11 @@ Redmine AWS SSM (`redmine_aws_ssm`) は、Rails が起動する前に、AWS Syst
 | 機能 | 内容 | 有効にする条件 | 資料 |
 | --- | --- | --- | --- |
 | Parameter Store の設定 | 1 つのパスの直下のパラメーターを、Rails が `config/database.yml` と `SECRET_KEY_BASE` を読み込む前に、環境変数に読み込む | `REDMINE_SSM_PATH` がある | [setup.md](setup.md#configuration) |
-| 管理画面のパラメーター名 | 読み込んだパラメーターの名前 (値ではない) を `RedmineAws::SSM.loaded` に保持する。[Redmine AWS](https://redmine-kit.github.io/redmine_aws/ja/admin.html#status) が「ステータス」のタブに表示する | 同上 | — |
+| 管理画面のパラメーター名 | Parameter Store から設定した変数の名前 (値ではない) を `RedmineAws::SSM.loaded` に保持する。[Redmine AWS](https://redmine-kit.github.io/redmine_aws/ja/admin.html#status) が「ステータス」のタブに表示する | 同上 | — |
 
 - **1 つのパスを読み込む:** `REDMINE_SSM_PATH` (例: `/redmine/env/`。最後の `/` は省略できます) の直下のパラメーターを、`GetParametersByPath` で読み込みます。1 回の呼び出しの上限の 10 件を超えても続きを読み込み、`SecureString` のパラメーターは復号します。
 - **名前が変数名になる:** パラメーター名の最後の部分が変数名になります。`/redmine/env/SECRET_KEY_BASE` は `SECRET_KEY_BASE` です。環境変数名にできる名前 (大文字、数字、`_`) だけを読み込み、下の階層は読み込みません。
-- **設定済みの変数は変更しない:** すでにある環境変数は上書きしません。ローカルのテストで値を直接渡せるようにするためです。
+- **設定済みの変数は変更しない:** すでにある環境変数は上書きしません。ローカルのテストで値を直接渡せるようにするためです。その名前は、管理画面に表示する名前に含めません。
 - **早めに失敗する:** Parameter Store に接続できなければ、シークレットなしで起動するのではなく、Redmine の起動を失敗させます。
 
 <a id="when-it-reads"></a>
