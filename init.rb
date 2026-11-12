@@ -3,9 +3,14 @@
 # The loading itself happens earlier, in boot/redmine_aws_ssm.rb, without
 # redmine_aws, which Redmine loads later. The plugin still requires
 # redmine_aws, as every Redmine AWS plugin does.
-# The version is RedmineAws::SSM::VERSION, which the boot file defines when
-# Bundler loads it; a checkout without the Gemfile.local line loads it here.
-require File.expand_path('boot/redmine_aws_ssm/loader', __dir__) unless defined?(RedmineAws::SSM::VERSION)
+# The boot file comes from the plugin's line in Redmine's Gemfile.local,
+# which Bundler loads; without it, Parameter Store would not be read, so
+# Redmine stops here and names the line.
+unless defined?(RedmineAws::SSM::VERSION)
+  raise Redmine::PluginRequirementError,
+        "redmine_aws_ssm plugin requires the line gem 'redmine_aws_ssm' in Redmine's Gemfile.local " \
+        '(docs/setup.md#installation)'
+end
 
 Redmine::Plugin.register :redmine_aws_ssm do
   # First, so that without redmine_aws Redmine stops with its own message
