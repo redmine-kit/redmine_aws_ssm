@@ -14,6 +14,9 @@ require 'aws-sdk-ssm'
 # explicitly from its init.rb.
 module RedmineAws
   module SSM
+    # The plugin's version, which init.rb and the gemspec read.
+    VERSION = '0.1.0'
+
     class << self
       # The names read at start-up, for the Status tab of redmine_aws.
       attr_accessor :loaded

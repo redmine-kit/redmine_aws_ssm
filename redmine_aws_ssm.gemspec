@@ -6,7 +6,7 @@
 # the installed gem is linked into Redmine's plugins/ (docs/setup.md).
 Gem::Specification.new do |spec|
   spec.name = 'redmine_aws_ssm'
-  spec.version = '0.1.0'
+  spec.version = File.read(File.join(__dir__, 'boot/redmine_aws_ssm/loader.rb'))[/VERSION = '([^']+)'/, 1]
   spec.summary = 'Loads environment variables from AWS Systems Manager Parameter Store before Rails starts'
   spec.authors = ['Redmine Kit']
   spec.license = 'GPL-2.0-or-later'
