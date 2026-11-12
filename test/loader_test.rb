@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Runs against moto or LocalStack with bin/test, and inside the Serverless
+# Runs against AWS Emulator with bin/test, and inside the Serverless
 # image (its bin/test-image), where the loader is required first:
 #   ruby -rbundler/setup -rredmine_aws_ssm/loader loader_test.rb
 require_relative 'test_helper'

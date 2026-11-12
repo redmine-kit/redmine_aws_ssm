@@ -12,7 +12,7 @@ Redmine AWS SSM (`redmine_aws_ssm`) is a Redmine plugin that reads settings and 
 - **redmine_aws:** the plugin requires [redmine_aws](https://github.com/redmine-kit/redmine_aws), as every Redmine AWS plugin does (`requires_redmine_plugin` in `init.rb`, the gem's dependency), but `boot/` must not use its code: it runs before Rails initializes, when Redmine has loaded no plugin yet. It requires only `redmine_aws/inflections`, first, then opens the namespace `RedmineAws` early and defines nothing in it but `RedmineAws::SSM`; redmine_aws loads its own `lib/redmine_aws.rb` from its `init.rb` for that reason. The "Status" tab of redmine_aws reads `RedmineAws::SSM.loaded`.
 - **Off without its setting:** without `REDMINE_SSM_PATH`, nothing is read.
 - **Never print values:** log and keep only names, never parameter values.
-- **Tests:** `bin/test` runs `test/*_test.rb` in Docker against LocalStack (with `LOCALSTACK_AUTH_TOKEN`) or moto, with coverage; CI runs it and uploads to Codecov. `test/loader_test.rb` must also run alone with the loader required first, as Serverless runs it inside its image.
+- **Tests:** `bin/test` runs `test/*_test.rb` in Docker against AWS Emulator, on a network that cannot reach AWS, with coverage; CI runs it and uploads to Codecov. `test/loader_test.rb` must also run alone with the loader required first, as Serverless runs it inside its image.
 - **No secrets in the repository.**
 
 ## Documentation

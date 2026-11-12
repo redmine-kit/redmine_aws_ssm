@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # Tests (docs/setup.md#tests), in Docker: the loader and a Rails application
-# that boots with the plugin, against SSM from LocalStack when
-# LOCALSTACK_AUTH_TOKEN is set and from moto otherwise. Coverage goes to
-# coverage/ (Cobertura and HTML).
+# that boots with the plugin, against SSM on AWS Emulator (test/compose.yml).
+# Coverage goes to coverage/ (Cobertura and HTML).
 #   bin/test           # every test
 #   bin/test --down    # stop the services
 #   REDMINE_AWS_DIR=<dir> bin/test   # redmine_aws from <dir> (default ../redmine_aws)
@@ -16,12 +15,6 @@ cd "$(dirname "$0")/.."
 version=${TEST_RUBY:-4.0}
 ruby=$(sed -n 's/^FROM //p' "test/ruby-$version.Dockerfile")
 compose=(docker compose -f test/compose.yml)
-if [[ -n "${LOCALSTACK_AUTH_TOKEN:-}" ]]; then
-  compose+=(--profile localstack)
-  backend=localstack endpoint=http://localstack:4566
-else
-  backend=moto endpoint=http://moto:5000
-fi
 if [[ "${1:-}" == --down ]]; then
   "${compose[@]}" down -v
   exit 0
@@ -33,14 +26,25 @@ aws_dir=${REDMINE_AWS_DIR:-../redmine_aws}
 [[ -f "$aws_dir/init.rb" ]] || { echo "redmine_aws is not in $aws_dir; set REDMINE_AWS_DIR" >&2; exit 1; }
 aws_dir=$(cd "$aws_dir" && pwd)
 
-echo "SSM for the tests: $backend ($endpoint)"
-"${compose[@]}" up -d --wait "$backend"
+if ! "${compose[@]}" up -d --wait aws-emulator; then
+  "${compose[@]}" ps -a >&2
+  "${compose[@]}" logs --tail 80 >&2
+  exit 1
+fi
+emulator=$("${compose[@]}" ps -q aws-emulator)
+echo "SSM for the tests: AWS Emulator $(docker exec "$emulator" aws-emulator --version | sed -n 's/^Version: //p')"
 rm -rf coverage
-docker run --rm --network redmine-aws-ssm-test_default -v "$PWD:/work" -w /work \
-  -v "redmine-aws-ssm-test-bundle-$version:/usr/local/bundle" -e BUNDLE_GEMFILE=Gemfile.test \
-  -v "$aws_dir:/redmine_aws:ro" -e REDMINE_AWS_DIR=/redmine_aws \
-  -e AWS_ENDPOINT_URL="$endpoint" -e AWS_REGION=us-east-1 -e AWS_ACCESS_KEY_ID=test \
-  -e AWS_SECRET_ACCESS_KEY=test -e PLUGIN_COVERAGE=1 -e BUNDLER_VERSION=4.0.20 "$ruby" sh -c '
-    gem install bundler -v "$BUNDLER_VERSION" --conservative --silent --no-document &&
-    bundle update --quiet --cooldown=3 &&
+gems=(-v "$PWD:/work" -w /work -v "redmine-aws-ssm-test-bundle-$version:/usr/local/bundle" -e BUNDLE_GEMFILE=Gemfile.test
+  -v "$aws_dir:/redmine_aws:ro" -e REDMINE_AWS_DIR=/redmine_aws -e BUNDLER_VERSION=4.0.20)
+# The gems first, on the default network (they come from rubygems.org), with
+# Bundler 4 for --cooldown (Ruby 3.2 comes with Bundler 2.4).
+docker run --rm "${gems[@]}" "$ruby" sh -c '
+  gem install bundler -v "$BUNDLER_VERSION" --conservative --silent --no-document &&
+  bundle update --quiet --cooldown=3'
+# Then the tests, in the emulator's network namespace on the internal
+# network, trusting only the certificate it wrote at start-up.
+docker run --rm "${gems[@]}" --network "container:$emulator" --volumes-from "$emulator:ro" \
+  -e AWS_ENDPOINT_URL=https://127.0.0.1:9297 -e AWS_CA_BUNDLE=/home/emulator/.aws/emulator/9297/ca.pem \
+  -e AWS_REGION=us-east-1 -e AWS_ACCESS_KEY_ID=test -e AWS_SECRET_ACCESS_KEY=test \
+  -e TEST_AWS_BACKEND=aws-emulator -e PLUGIN_COVERAGE=1 "$ruby" sh -c '
     bundle exec ruby -Iboot -e "Dir[\"test/*_test.rb\"].each { |file| require \"./#{file}\" }"'

@@ -61,11 +61,9 @@ jobs:
           repository: redmine-kit/redmine_aws
           path: redmine_aws
           persist-credentials: false
-      # LocalStack when the organization's token is available, moto otherwise
-      # (pull requests from forks); bin/test prints which one ran.
+      # SSM on AWS Emulator (test/compose.yml).
       - run: bin/test
         env:
-          LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
           REDMINE_AWS_DIR: redmine_aws
       # Not failing the run while the Codecov GitHub App is not installed.
       - if: matrix.ruby == '4.0'
@@ -76,8 +74,6 @@ jobs:
           fail_ci_if_error: false
       - if: always()
         run: bin/test --down
-        env:
-          LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
 
   # The tests against the latest release of redmine_aws (its newest v0.*
   # tag, the source of the published gem), as well as against its main
@@ -106,12 +102,9 @@ jobs:
       - if: steps.release.outputs.tag != ''
         run: bin/test
         env:
-          LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
           REDMINE_AWS_DIR: redmine_aws
       - if: always() && steps.release.outputs.tag != ''
         run: bin/test --down
-        env:
-          LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
 
   # The plugin as a gem (bin/test-gem): built with redmine_aws's, installed,
   # linked into plugins/ and booted with eager_load, as adapters install it,

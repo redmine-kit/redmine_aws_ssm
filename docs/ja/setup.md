@@ -96,7 +96,7 @@ bundle install
 
 ## テスト
 
-`bin/test` は、Docker でテストを実行します。SSM は、`LOCALSTACK_AUTH_TOKEN` があれば LocalStack、なければ moto です (どちらを使うかを表示します)。ローダーが読み込む活用形を持つ Redmine AWS は、隣のチェックアウト (`../redmine_aws`) か、`REDMINE_AWS_DIR` のディレクトリから使います。CI は、push のたびに、Ruby 3.2 と 4.0 でテストと静的チェックを実行します。テストには組織の LocalStack のトークンを使い (フォークからの Pull Request は moto)、`boot/` のカバレッジを Codecov に送信します。ローカルでは、`TEST_RUBY=3.2 bin/test` (または `bin/lint`) で Ruby 3.2 で実行します。
+`bin/test` は、Docker でテストを実行します。ローダーが読み込む活用形を持つ Redmine AWS は、隣のチェックアウト (`../redmine_aws`) か、`REDMINE_AWS_DIR` のディレクトリから使います。SSM は [AWS Emulator](https://docs.aws.amazon.com/ja_jp/emulator/latest/userguide/) です (`test/compose.yml`)。AWS のパッケージから、`test/aws-emulator/Dockerfile` で固定したバージョンをインストールし、テレメトリーはオフにします。ログにバージョンを出します。ローダーが呼ぶ SSM の操作 (ページングと復号を使う `GetParametersByPath`、テストの `PutParameter`) はすべてあるので、テストはモックしません。`bin/test` は、先に Docker のデフォルトのネットワークで gem をインストールし、そのあとエミュレーターのネットワーク名前空間で、AWS に届かない内部ネットワークでテストを実行します (届くと `test/network_test.rb` が失敗します)。エミュレーターが起動時に書く証明書だけを信頼します (`AWS_CA_BUNDLE`)。CI は、push のたびに、Ruby 3.2 と 4.0 でテストと静的チェックを実行し、`boot/` のカバレッジを Codecov に送信します。ローカルでは、`TEST_RUBY=3.2 bin/test` (または `bin/lint`) で Ruby 3.2 で実行します。
 
 `bin/test-gem` は gem を確認します。チェックアウトからプラグインと Redmine AWS の gem をビルドし、[gem](#gem) のとおりに SQLite の Redmine 7.0.3 にインストールして `plugins/` にリンクし、すべてのファイルを読み込んで Redmine を起動します (`zeitwerk:check` と、起動時にすべてを読み込む production 環境)。CI もこれを実行するので、gem にないファイルがあれば、バージョンのタグで公開する前に失敗します。
 
@@ -109,6 +109,7 @@ bin/test-gem
 | `test/loader_test.rb` | 10 件を超えるパラメーター (複数のページ)、`SecureString` の復号、設定済みの環境変数、環境変数名にできない名前、下の階層、最後の `/` がないパス、接続できないエンドポイント |
 | `test/boot_test.rb` | Redmine と同じ形で定義した Rails 8.1 のアプリケーションを、`REDMINE_SSM_PATH` を設定して別のプロセスで起動する。アプリケーションクラスの本体 (Redmine が `config/additional_environment.rb` を評価するところ) と `config/database.yml` で、Parameter Store の値が環境変数になっていること。パスがなければ何も読み込まないこと。Parameter Store に接続できなければ起動が失敗すること。ローダーが Redmine AWS の活用形 (`redmine_aws/inflections`) を読み込んでいること |
 | `test/namespace_test.rb` | コードローダーを Redmine 7.0 と同じ形 (プラグインの `lib/` をルートディレクトリにし、イニシャライザーで新しいインフレクタを設定する) にした Rails 8.1 のアプリケーションを、boot ファイルを先に読み込んで別のプロセスで起動する。ローダーが、別のプラグインの `lib/redmine_aws/` のファイルを Redmine AWS の活用形で名付けること (`costexplorer.rb` は `RedmineAws::CostExplorer`)。`RedmineAws` を先に定義しても、Redmine AWS 自身のファイルを読み込めること |
+| `test/network_test.rb` | テストから AWS の SSM と STS に接続できない (`bin/test` のネットワークで) |
 | `test/init_test.rb` | `init.rb` が、プラグインの登録の中でほかの何よりも先に Redmine AWS を要求する (`requires_redmine_plugin`) |
 | `test/version_test.rb` | gemspec のバージョンがコードのバージョン (`RedmineAws::SSM::VERSION`) と同じ |
 
