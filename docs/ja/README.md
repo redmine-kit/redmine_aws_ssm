@@ -45,7 +45,7 @@ Parameter Store がエラーを返したとき (経路がない、権限がな�
 
 ## スポンサー
 
-<Sponsors><a href="https://www.keyselect.co.jp/">KEY SELECT</a> <a href="https://localstack.cloud">LocalStack</a></Sponsors>
+<Sponsors ids="keyselect"><a href="https://www.keyselect.co.jp/">KEY SELECT</a></Sponsors>
 
 <a id="license"></a>
 
