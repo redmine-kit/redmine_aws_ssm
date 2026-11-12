@@ -103,6 +103,8 @@ bundle install
 | `test/loader_test.rb` | 10 件を超えるパラメーター (複数のページ)、`SecureString` の復号、設定済みの環境変数、環境変数名にできない名前、下の階層、最後の `/` がないパス、接続できないエンドポイント |
 | `test/boot_test.rb` | Redmine と同じ形で定義した Rails 8.1 のアプリケーションを、`REDMINE_SSM_PATH` を設定して別のプロセスで起動する。アプリケーションクラスの本体 (Redmine が `config/additional_environment.rb` を評価するところ) と `config/database.yml` で、Parameter Store の値が環境変数になっていること。パスがなければ何も読み込まないこと。Parameter Store に接続できなければ起動が失敗すること。ローダーが Redmine AWS の活用形 (`redmine_aws/inflections`) を読み込んでいること |
 | `test/namespace_test.rb` | コードローダーを Redmine 7.0 と同じ形 (プラグインの `lib/` をルートディレクトリにし、イニシャライザーで新しいインフレクタを設定する) にした Rails 8.1 のアプリケーションを、boot ファイルを先に読み込んで別のプロセスで起動する。ローダーが、別のプラグインの `lib/redmine_aws/` のファイルを Redmine AWS の活用形で名付けること (`costexplorer.rb` は `RedmineAws::CostExplorer`)。`RedmineAws` を先に定義しても、Redmine AWS 自身のファイルを読み込めること |
+| `test/init_test.rb` | `init.rb` が、プラグインの登録の中でほかの何よりも先に Redmine AWS を要求する (`requires_redmine_plugin`) |
+| `test/version_test.rb` | gemspec のバージョンがコードのバージョン (`RedmineAws::SSM::VERSION`) と同じ |
 
 Serverless も、イメージの中で `test/loader_test.rb` を実行します (`bin/test-image`)。そこでは、3 つの役割が、データベースのホスト、そのパスワード、`SECRET_KEY_BASE` を Parameter Store だけから読み込みます ([Serverless の testing.md](https://redmine-kit.github.io/serverless/ja/testing.html#image-tests))。
 
