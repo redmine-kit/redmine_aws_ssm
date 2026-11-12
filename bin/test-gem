@@ -39,4 +39,8 @@ docker run --rm -v "$PWD:/src/redmine_aws_ssm:ro" -v "$aws_dir:/src/redmine_aws:
     abort %(redmine_aws_ssm is not the installed gem: #{dir}) unless dir.start_with?(Gem.dir)
     abort %(not eager loaded) unless Rails.application.config.eager_load
     abort %(read parameters without REDMINE_SSM_PATH) unless RedmineAws::SSM.loaded.empty?
+    # Bundler loaded the boot file (it ignores a missing one): without it,
+    # Parameter Store would not be read before the configuration.
+    abort %(boot/redmine_aws_ssm.rb not loaded) unless \$LOADED_FEATURES.any? { |f| f.end_with?(%(/boot/redmine_aws_ssm.rb)) }
+    abort %(no RedmineAws::SSM::Railtie) unless defined?(RedmineAws::SSM::Railtie)
     puts %(redmine_aws_ssm #{plugin.version} from #{dir}: RedmineAws::SSM #{RedmineAws::SSM::VERSION})"'
