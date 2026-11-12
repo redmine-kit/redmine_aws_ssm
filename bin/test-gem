@@ -20,14 +20,17 @@ aws_dir=$(cd "$aws_dir" && pwd)
 # test/redmine.Dockerfile on the Ruby of TEST_RUBY.
 ruby=$(sed -n 's/^FROM //p' "test/ruby-${TEST_RUBY:-4.0}.Dockerfile")
 sed "s|^FROM ruby:[^ ]*|FROM $ruby|" test/redmine.Dockerfile | docker buildx build --load -q -t "$image" -f - test >/dev/null
-docker run --rm -v "$PWD:/src/redmine_aws_ssm:ro" -v "$aws_dir:/src/redmine_aws:ro" -e SECRET_KEY_BASE=test-gem \
+docker run --rm -v "$PWD:/src/redmine_aws_ssm:ro" -v "$aws_dir:/src/redmine_aws:ro" -e SECRET_KEY_BASE=test-gem -e BUNDLER_VERSION=4.0.20 \
   "$image" sh -ec '
   for plugin in redmine_aws redmine_aws_ssm; do
     (cd "/src/$plugin" && gem build --quiet "$plugin.gemspec" --output "/tmp/$plugin.gem")
   done
-  gem install --no-document --quiet /tmp/redmine_aws.gem /tmp/redmine_aws_ssm.gem
+  # The two gems from the files; their dependencies (aws-sdk-ssm) through
+  # Bundler with the cooldown of bin/test (Bundler 4: Ruby 3.2 has 2.4).
+  gem install --local --ignore-dependencies --no-document --quiet /tmp/redmine_aws.gem /tmp/redmine_aws_ssm.gem
+  gem install bundler -v "$BUNDLER_VERSION" --conservative --silent --no-document
   echo "gem '\''redmine_aws_ssm'\''" > Gemfile.local
-  bundle install --prefer-local --quiet
+  bundle update --quiet --cooldown=3
   for plugin in redmine_aws redmine_aws_ssm; do
     ln -s "$(bundle info --path "$plugin")" "plugins/$plugin"
   done
