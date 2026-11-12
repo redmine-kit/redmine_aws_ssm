@@ -11,7 +11,12 @@ RUN curl -fsSLo /tmp/redmine.tar.gz "https://www.redmine.org/releases/redmine-${
   && mv "/redmine-${REDMINE_VERSION}" /redmine \
   && rm /tmp/redmine.tar.gz
 WORKDIR /redmine
+# With the plugin's dependency (aws-sdk-ssm, as redmine_aws_ssm.gemspec
+# requires it), resolved with Redmine's gems when the image is built, as in
+# the other plugins' test images; bin/test-gem then installs the plugin's
+# gems from their files only (gem install --local).
 RUN printf "%s\n" "production:" "  adapter: sqlite3" "  database: db/redmine.sqlite3" > config/database.yml \
+  && echo "gem 'aws-sdk-ssm', '~> 1.0'" > Gemfile.local \
   && bundle config set --local without "development test" \
   && bundle install --jobs 4
 ENV RAILS_ENV=production
