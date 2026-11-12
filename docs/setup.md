@@ -80,6 +80,12 @@ The call is made once when each process starts. If the endpoint cannot be reache
 
 `bin/test` runs the tests in Docker, against SSM from LocalStack when `LOCALSTACK_AUTH_TOKEN` is set and from moto otherwise (it prints which), with Redmine AWS, whose inflections the loader requires, from a checkout next to this one (`../redmine_aws`) or from the directory in `REDMINE_AWS_DIR`. CI runs the tests and the lint on every push, on Ruby 3.2 and 4.0. The tests use the organization's LocalStack token (pull requests from forks get moto), and CI sends the coverage of `boot/` to Codecov. Locally, `TEST_RUBY=3.2 bin/test` (or `bin/lint`) runs them on Ruby 3.2.
 
+`bin/test-gem` checks the gem: it builds the gems of the plugin and of Redmine AWS from the checkouts, installs them as [Gem](#gem) says into Redmine 7.0.3 on SQLite, links them into `plugins/` and starts Redmine with every file loaded (`zeitwerk:check`, and the production environment, which loads them at start-up). CI runs it too, so a file missing from the gem fails before a version tag publishes it.
+
+```sh
+bin/test-gem
+```
+
 | Test | What it checks |
 | --- | --- |
 | `test/loader_test.rb` | More than 10 parameters (several pages), `SecureString` decryption, variables that are already set, names that cannot be variables, deeper paths, a path without the last `/`, and an unreachable endpoint |

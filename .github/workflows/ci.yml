@@ -112,3 +112,22 @@ jobs:
         run: bin/test --down
         env:
           LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
+
+  # The plugin as a gem (bin/test-gem): built with redmine_aws's, installed,
+  # linked into plugins/ and booted with eager_load, as adapters install it,
+  # so that a broken gem shows before a version tag publishes it.
+  gem:
+    needs: static
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v7.0.1
+        with:
+          repository: redmine-kit/redmine_aws
+          path: redmine_aws
+          persist-credentials: false
+      - run: bin/test-gem
+        env:
+          REDMINE_AWS_DIR: redmine_aws

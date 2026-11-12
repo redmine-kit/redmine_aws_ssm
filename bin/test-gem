@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# The plugin as a gem, in Docker: builds the gems of this checkout and of
+# redmine_aws, which it depends on, installs them into Redmine 7.0.3 (on
+# SQLite) as docs/setup.md#gem says (a gem line in Gemfile.local, then
+# plugins/ linked to the installed gems), and boots Redmine through
+# zeitwerk:check and in the production environment, which loads every file
+# at start-up (eager_load). It fails when the gem misses a file that the
+# checkout has.
+#   bin/test-gem
+#   TEST_RUBY=3.2 bin/test-gem   # on Ruby 3.2 (default 4.0)
+#   REDMINE_AWS_DIR=<dir> bin/test-gem   # redmine_aws from <dir> (default ../redmine_aws)
+# Commands that run inside the container are in single quotes on purpose.
+# shellcheck disable=SC2016
+set -euo pipefail
+cd "$(dirname "$0")/.."
+image=redmine-aws-ssm-test-gem
+aws_dir=${REDMINE_AWS_DIR:-../redmine_aws}
+[[ -f "$aws_dir/init.rb" ]] || { echo "redmine_aws is not in $aws_dir; set REDMINE_AWS_DIR" >&2; exit 1; }
+aws_dir=$(cd "$aws_dir" && pwd)
+# test/redmine.Dockerfile on the Ruby of TEST_RUBY.
+ruby=$(sed -n 's/^FROM //p' "test/ruby-${TEST_RUBY:-4.0}.Dockerfile")
+sed "s|^FROM ruby:[^ ]*|FROM $ruby|" test/redmine.Dockerfile | docker buildx build --load -q -t "$image" -f - test >/dev/null
+docker run --rm -v "$PWD:/src/redmine_aws_ssm:ro" -v "$aws_dir:/src/redmine_aws:ro" -e SECRET_KEY_BASE=test-gem \
+  "$image" sh -ec '
+  for plugin in redmine_aws redmine_aws_ssm; do
+    (cd "/src/$plugin" && gem build --quiet "$plugin.gemspec" --output "/tmp/$plugin.gem")
+  done
+  gem install --no-document --quiet /tmp/redmine_aws.gem /tmp/redmine_aws_ssm.gem
+  echo "gem '\''redmine_aws_ssm'\''" > Gemfile.local
+  bundle install --prefer-local --quiet
+  for plugin in redmine_aws redmine_aws_ssm; do
+    ln -s "$(bundle info --path "$plugin")" "plugins/$plugin"
+  done
+  bin/rails db:migrate redmine:plugins:migrate >/dev/null
+  bin/rails zeitwerk:check
+  bin/rails runner "
+    plugin = Redmine::Plugin.find(:redmine_aws_ssm)
+    dir = File.realpath(plugin.directory)
+    abort %(redmine_aws_ssm is not the installed gem: #{dir}) unless dir.start_with?(Gem.dir)
+    abort %(not eager loaded) unless Rails.application.config.eager_load
+    abort %(read parameters without REDMINE_SSM_PATH) unless RedmineAws::SSM.loaded.empty?
+    puts %(redmine_aws_ssm #{plugin.version} from #{dir}: RedmineAws::SSM #{RedmineAws::SSM::VERSION})"'

@@ -98,6 +98,12 @@ bundle install
 
 `bin/test` は、Docker でテストを実行します。SSM は、`LOCALSTACK_AUTH_TOKEN` があれば LocalStack、なければ moto です (どちらを使うかを表示します)。ローダーが読み込む活用形を持つ Redmine AWS は、隣のチェックアウト (`../redmine_aws`) か、`REDMINE_AWS_DIR` のディレクトリから使います。CI は、push のたびに、Ruby 3.2 と 4.0 でテストと静的チェックを実行します。テストには組織の LocalStack のトークンを使い (フォークからの Pull Request は moto)、`boot/` のカバレッジを Codecov に送信します。ローカルでは、`TEST_RUBY=3.2 bin/test` (または `bin/lint`) で Ruby 3.2 で実行します。
 
+`bin/test-gem` は gem を確認します。チェックアウトからプラグインと Redmine AWS の gem をビルドし、[gem](#gem) のとおりに SQLite の Redmine 7.0.3 にインストールして `plugins/` にリンクし、すべてのファイルを読み込んで Redmine を起動します (`zeitwerk:check` と、起動時にすべてを読み込む production 環境)。CI もこれを実行するので、gem にないファイルがあれば、バージョンのタグで公開する前に失敗します。
+
+```sh
+bin/test-gem
+```
+
 | テスト | 確認すること |
 | --- | --- |
 | `test/loader_test.rb` | 10 件を超えるパラメーター (複数のページ)、`SecureString` の復号、設定済みの環境変数、環境変数名にできない名前、下の階層、最後の `/` がないパス、接続できないエンドポイント |
