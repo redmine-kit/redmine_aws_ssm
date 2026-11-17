@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # Tests (docs/setup.md#tests), in Docker: the loader and a Rails application
 # that boots with the plugin, against SSM on AWS Emulator (test/compose.yml).
-# Coverage goes to coverage/ (Cobertura and HTML).
+# With COVERAGE set, the coverage of boot/ goes to coverage/ (Cobertura and HTML).
 #   bin/test           # every test
 #   bin/test --down    # stop the services
 #   REDMINE_AWS_DIR=<dir> bin/test   # redmine_aws from <dir> (default ../redmine_aws)
 #   TEST_RUBY=3.2 bin/test           # on Ruby 3.2 (default 4.0), as the CI also does
+#   COVERAGE=1 bin/test              # with the coverage, as the CI does
 # Commands that run inside containers are in single quotes on purpose.
 # shellcheck disable=SC2016
 set -euo pipefail
@@ -33,7 +34,12 @@ if ! "${compose[@]}" up -d --wait aws-emulator; then
 fi
 emulator=$("${compose[@]}" ps -q aws-emulator)
 echo "SSM for the tests: AWS Emulator $(docker exec "$emulator" aws-emulator --version | sed -n 's/^Version: //p')"
-rm -rf coverage
+# The coverage of boot/ (test/coverage.rb) only with COVERAGE set.
+cov=()
+if [[ -n "${COVERAGE:-}" ]]; then
+  rm -rf coverage
+  cov=(-e PLUGIN_COVERAGE=1)
+fi
 gems=(-v "$PWD:/work" -w /work -v "redmine-aws-ssm-test-bundle-$version:/usr/local/bundle" -e BUNDLE_GEMFILE=Gemfile.test
   -v "$aws_dir:/redmine_aws:ro" -e REDMINE_AWS_DIR=/redmine_aws -e BUNDLER_VERSION=4.0.20)
 # The gems first, on the default network (they come from rubygems.org), with
@@ -46,5 +52,5 @@ docker run --rm "${gems[@]}" "$ruby" sh -c '
 docker run --rm "${gems[@]}" --network "container:$emulator" --volumes-from "$emulator:ro" \
   -e AWS_ENDPOINT_URL=https://127.0.0.1:9297 -e AWS_CA_BUNDLE=/home/emulator/.aws/emulator/9297/ca.pem \
   -e AWS_REGION=us-east-1 -e AWS_ACCESS_KEY_ID=test -e AWS_SECRET_ACCESS_KEY=test \
-  -e TEST_AWS_BACKEND=aws-emulator -e PLUGIN_COVERAGE=1 "$ruby" sh -c '
+  -e TEST_AWS_BACKEND=aws-emulator ${cov[@]+"${cov[@]}"} "$ruby" sh -c '
     bundle exec ruby -Iboot -e "Dir[\"test/*_test.rb\"].each { |file| require \"./#{file}\" }"'
