@@ -5,7 +5,7 @@
 source 'https://rubygems.org'
 
 gem 'aws-sdk-ssm', '~> 1.0'
-# redmine_kit_aws, which the gem requires and whose inflections boot/ loads: a
+# redmine_kit_aws, which the gem requires and the namespace test loads: a
 # checkout next to this one, or REDMINE_KIT_AWS_DIR (bin/test).
 gem 'redmine_kit_aws', path: ENV.fetch('REDMINE_KIT_AWS_DIR', '../redmine_kit_aws'), require: false
 gem 'minitest', '~> 6.0'

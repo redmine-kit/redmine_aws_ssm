@@ -7,7 +7,7 @@ require_relative 'test_helper'
 
 class LoaderTest < Minitest::Test
   def setup
-    @ssm = Aws::SSM::Client.new
+    @ssm = ::Aws::SSM::Client.new
     @path = "/env-test-#{SecureRandom.hex(4)}/env/"
     @saved = ENV.to_h
   end
@@ -23,7 +23,7 @@ class LoaderTest < Minitest::Test
   def test_reads_every_parameter_past_ten
     12.times { |i| put("SSM_ENV_TEST_#{i}", "value-#{i}") }
 
-    names = RedmineKitAws::SSM::Loader.load(@path, client: @ssm)
+    names = RedmineKit::Aws::Ssm::Loader.load(@path, client: @ssm)
 
     assert_equal 12, names.size
     assert_equal 'value-11', ENV.fetch('SSM_ENV_TEST_11')
@@ -31,7 +31,7 @@ class LoaderTest < Minitest::Test
 
   def test_decrypts_secure_strings
     put('SSM_ENV_TEST_SECRET', 'secret-value', type: 'SecureString')
-    RedmineKitAws::SSM::Loader.load(@path, client: @ssm)
+    RedmineKit::Aws::Ssm::Loader.load(@path, client: @ssm)
 
     assert_equal 'secret-value', ENV.fetch('SSM_ENV_TEST_SECRET')
   end
@@ -42,7 +42,7 @@ class LoaderTest < Minitest::Test
     ENV['SSM_ENV_TEST_KEPT'] = 'from the environment'
     put('SSM_ENV_TEST_KEPT', 'from SSM')
     put('SSM_ENV_TEST_SET', 'from SSM')
-    names = RedmineKitAws::SSM::Loader.load(@path, client: @ssm)
+    names = RedmineKit::Aws::Ssm::Loader.load(@path, client: @ssm)
 
     assert_equal 'from the environment', ENV.fetch('SSM_ENV_TEST_KEPT')
     assert_equal ['SSM_ENV_TEST_SET'], names
@@ -53,19 +53,19 @@ class LoaderTest < Minitest::Test
     put('nested/SSM_ENV_TEST_DEEP', 'x')
     put('SSM_ENV_TEST_OK', 'x')
 
-    assert_equal ['SSM_ENV_TEST_OK'], RedmineKitAws::SSM::Loader.load(@path, client: @ssm)
+    assert_equal ['SSM_ENV_TEST_OK'], RedmineKit::Aws::Ssm::Loader.load(@path, client: @ssm)
   end
 
   def test_reads_a_path_without_the_last_slash
     put('SSM_ENV_TEST_NO_SLASH', 'from SSM')
 
-    assert_equal ['SSM_ENV_TEST_NO_SLASH'], RedmineKitAws::SSM::Loader.load(@path.delete_suffix('/'), client: @ssm)
+    assert_equal ['SSM_ENV_TEST_NO_SLASH'], RedmineKit::Aws::Ssm::Loader.load(@path.delete_suffix('/'), client: @ssm)
     assert_equal 'from SSM', ENV.fetch('SSM_ENV_TEST_NO_SLASH')
   end
 
   def test_an_unreachable_service_fails
-    client = Aws::SSM::Client.new(endpoint: 'http://127.0.0.1:9', retry_limit: 0, http_open_timeout: 1)
+    client = ::Aws::SSM::Client.new(endpoint: 'http://127.0.0.1:9', retry_limit: 0, http_open_timeout: 1)
 
-    assert_raises(Seahorse::Client::NetworkingError) { RedmineKitAws::SSM::Loader.load(@path, client: client) }
+    assert_raises(Seahorse::Client::NetworkingError) { RedmineKit::Aws::Ssm::Loader.load(@path, client: client) }
   end
 end

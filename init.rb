@@ -6,7 +6,7 @@
 # The boot file comes from the plugin's line in Redmine's Gemfile.local,
 # which Bundler loads; without it, Parameter Store would not be read, so
 # Redmine stops here and names the line.
-unless defined?(RedmineKitAws::SSM::VERSION)
+unless defined?(RedmineKit::Aws::Ssm::VERSION)
   raise Redmine::PluginRequirementError,
         "redmine_kit_aws_ssm plugin requires the line gem 'redmine_kit_aws_ssm' in Redmine's Gemfile.local " \
         '(docs/setup.md#installation)'
@@ -19,7 +19,7 @@ Redmine::Plugin.register :redmine_kit_aws_ssm do
   name 'Redmine Kit AWS SSM'
   author 'Redmine Kit'
   description 'Loads environment variables from AWS Systems Manager Parameter Store before Rails starts'
-  version RedmineKitAws::SSM::VERSION
+  version RedmineKit::Aws::Ssm::VERSION
   url 'https://github.com/redmine-kit/redmine_aws_ssm'
   author_url 'https://github.com/redmine-kit'
   requires_redmine version_or_higher: '7.0.0'

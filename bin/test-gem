@@ -45,9 +45,9 @@ build_image "$image" "$dockerfile" test
     dir = File.realpath(plugin.directory)
     abort %(redmine_kit_aws_ssm is not the installed gem: #{dir}) unless dir.start_with?(Gem.dir)
     abort %(not eager loaded) unless Rails.application.config.eager_load
-    abort %(read parameters without REDMINE_SSM_PATH) unless RedmineKitAws::SSM.loaded.empty?
+    abort %(read parameters without REDMINE_SSM_PATH) unless RedmineKit::Aws::Ssm.loaded.empty?
     # Bundler loaded the boot file (it ignores a missing one): without it,
     # Parameter Store would not be read before the configuration.
     abort %(boot/redmine_kit_aws_ssm.rb not loaded) unless \$LOADED_FEATURES.any? { |f| f.end_with?(%(/boot/redmine_kit_aws_ssm.rb)) }
-    abort %(no RedmineKitAws::SSM::Railtie) unless defined?(RedmineKitAws::SSM::Railtie)
-    puts %(redmine_kit_aws_ssm #{plugin.version} from #{dir}: RedmineKitAws::SSM #{RedmineKitAws::SSM::VERSION})"'
+    abort %(no RedmineKit::Aws::Ssm::Railtie) unless defined?(RedmineKit::Aws::Ssm::Railtie)
+    puts %(redmine_kit_aws_ssm #{plugin.version} from #{dir}: RedmineKit::Aws::Ssm #{RedmineKit::Aws::Ssm::VERSION})"'

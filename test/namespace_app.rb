@@ -5,7 +5,7 @@
 # plugins' lib/ are root directories (Redmine::PluginLoader), and the
 # loaders get a new inflector in an initializer
 # (config/initializers/zeitwerk.rb). The plugin's boot file is loaded first,
-# as Bundler loads it, so RedmineKitAws is defined before the loader sets up.
+# as Bundler loads it, so RedmineKit::Aws is defined before the loader sets up.
 # It prints, as JSON, what the files under lib/redmine_kit_aws define.
 require_relative 'coverage'
 require 'json'
@@ -30,15 +30,16 @@ module NamespaceApp
 end
 
 NamespaceApp::Application.initialize!
-# What redmine_kit_aws's init.rb does: the loader skips lib/redmine_kit_aws.rb,
-# because RedmineKitAws is defined already.
-require File.join(NamespaceApp::REDMINE_KIT_AWS, 'lib/redmine_kit_aws') unless defined?(RedmineKitAws::VERSION)
+# What redmine_kit_aws's init.rb does: the loader skips lib/redmine_kit/aws.rb,
+# because RedmineKit::Aws is defined already.
+require File.join(NamespaceApp::REDMINE_KIT_AWS, 'lib/redmine_kit/aws') unless defined?(RedmineKit::Aws::VERSION)
 # What bin/rails zeitwerk:check does.
 Zeitwerk::Loader.eager_load_all
 
 result = {
-  version: RedmineKitAws::VERSION,
-  names: [RedmineKitAws::Admin, RedmineKitAws::CostExplorer, RedmineKitAws::SES, RedmineKitAws::SES::Receiver].map(&:name),
-  loaded: RedmineKitAws::SSM.loaded
+  version: RedmineKit::Aws::VERSION,
+  names: [RedmineKit::Aws::Admin, RedmineKit::Aws::Costexplorer, RedmineKit::Aws::Ses,
+          RedmineKit::Aws::Ses::Receiver].map(&:name),
+  loaded: RedmineKit::Aws::Ssm.loaded
 }
 puts "NAMESPACE_RESULT #{JSON.generate(result)}"

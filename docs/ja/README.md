@@ -12,7 +12,7 @@ Redmine Kit AWS SSM (`redmine_kit_aws_ssm`) は、Rails が起動する前に、
 | 機能 | 内容 | 有効にする条件 | 資料 |
 | --- | --- | --- | --- |
 | Parameter Store の設定 | 1 つのパスの直下のパラメーターを、Rails が `config/database.yml` と `SECRET_KEY_BASE` を読み込む前に、環境変数に読み込む | `REDMINE_SSM_PATH` がある | [setup.md](setup.md#configuration) |
-| 管理画面のパラメーター名 | Parameter Store から設定した変数の名前 (値ではない) を `RedmineKitAws::SSM.loaded` に保持する。[Redmine Kit AWS](https://redmine-kit.github.io/redmine_aws/ja/admin.html#status) が「ステータス」のタブに表示する | 同上 | — |
+| 管理画面のパラメーター名 | Parameter Store から設定した変数の名前 (値ではない) を `RedmineKit::Aws::Ssm.loaded` に保持する。[Redmine Kit AWS](https://redmine-kit.github.io/redmine_aws/ja/admin.html#status) が「ステータス」のタブに表示する | 同上 | — |
 
 - **1 つのパスを読み込む:** `REDMINE_SSM_PATH` (例: `/redmine/env/`。最後の `/` は省略できます) の直下のパラメーターを、`GetParametersByPath` で読み込みます。1 回の呼び出しの上限の 10 件を超えても続きを読み込み、`SecureString` のパラメーターは復号します。
 - **名前が変数名になる:** パラメーター名の最後の部分が変数名になります。`/redmine/env/SECRET_KEY_BASE` は `SECRET_KEY_BASE` です。環境変数名にできる名前 (大文字、数字、`_`) だけを読み込み、下の階層は読み込みません。
@@ -29,7 +29,7 @@ Redmine Kit AWS SSM (`redmine_kit_aws_ssm`) は、Rails が起動する前に、
 2. `config/application.rb` の `Bundler.require` が、`boot/redmine_kit_aws_ssm.rb` を読み込みます。
 3. アプリケーションクラスを定義するときに、Railtie の `before_configuration` がパラメーターを読み込みます。クラスの本体 (`config/additional_environment.rb` を含む) より前で、`config/database.yml` を読み込むより前です。
 
-コードは `lib/` ではなく `boot/` に置きます。Redmine はプラグインの `lib/` を自動読み込みの対象にしますが、Bundler が読み込み済みのファイルを、自動読み込みでもう一度読み込ませないためです。`init.rb` はプラグインを登録し、これにより管理画面のプラグイン一覧に表示されます。バージョンは、boot のファイルが定義する `RedmineKitAws::SSM::VERSION` です (gemspec も読みます)。Bundler が boot のファイルを読み込んでいないとき (`Gemfile.local` に行がないとき) は、足りない行を示すエラーで Redmine を止めます。ほかの Redmine Kit AWS のプラグインと同じく、[Redmine Kit AWS](https://redmine-kit.github.io/redmine_aws/ja/) を必要とします (`init.rb` の `requires_redmine_plugin` と、gem の依存関係)。ただし、読み込みはそのコードを使いません。Redmine がそのプラグインのコードを読み込むのは、パラメーターを読み込んだあとだからです。`Bundler.require` は Gemfile にある gem だけを読み込み、その依存関係は読み込まないので、Bundler が `redmine_kit_aws` を早く読み込むことはありません。コードは Redmine Kit AWS のプラグインの名前空間 `RedmineKitAws` の下の `RedmineKitAws::SSM` にあるので、`boot/` は、Redmine Kit AWS が定義するより前にモジュール `RedmineKitAws` を開きます。そのため Redmine Kit AWS は、`lib/redmine_kit_aws.rb` を Redmine の自動読み込みに任せず、自身の `init.rb` から読み込みます。その前に `boot/` は、Redmine Kit AWS が登録する活用形 (`redmine_kit_aws/inflections`。`ses` → `SES` など) を読み込みます。`RedmineKitAws` が早く定義されていると、Rails のコードローダーは、セットアップの時点で、どの `init.rb` よりも前に、ほかのプラグインの `lib/redmine_kit_aws/` の下のファイルの定数名を決めるからです。
+コードは `lib/` ではなく `boot/` に置きます。Redmine はプラグインの `lib/` を自動読み込みの対象にしますが、Bundler が読み込み済みのファイルを、自動読み込みでもう一度読み込ませないためです。`init.rb` はプラグインを登録し、これにより管理画面のプラグイン一覧に表示されます。バージョンは、boot のファイルが定義する `RedmineKit::Aws::Ssm::VERSION` です (gemspec も読みます)。Bundler が boot のファイルを読み込んでいないとき (`Gemfile.local` に行がないとき) は、足りない行を示すエラーで Redmine を止めます。ほかの Redmine Kit AWS のプラグインと同じく、[Redmine Kit AWS](https://redmine-kit.github.io/redmine_aws/ja/) を必要とします (`init.rb` の `requires_redmine_plugin` と、gem の依存関係)。ただし、読み込みはそのコードを使いません。Redmine がそのプラグインのコードを読み込むのは、パラメーターを読み込んだあとだからです。`Bundler.require` は Gemfile にある gem だけを読み込み、その依存関係は読み込まないので、Bundler が `redmine_kit_aws` を早く読み込むことはありません。コードは Redmine Kit AWS のプラグインの名前空間 `RedmineKit::Aws` の下の `RedmineKit::Aws::Ssm` にあるので、`boot/` は、Redmine Kit AWS が定義するより前にモジュール `RedmineKit::Aws` を開きます。そのため Redmine Kit AWS は、`lib/redmine_kit/aws.rb` を Redmine の自動読み込みに任せず、自身の `init.rb` から読み込みます。
 
 <a id="each-process"></a>
 
