@@ -1,11 +1,11 @@
-# Redmine AWS SSM
+# Redmine Kit AWS SSM
 
 [![CI](https://img.shields.io/github/actions/workflow/status/redmine-kit/redmine_aws_ssm/ci.yml?branch=main&label=CI)](https://github.com/redmine-kit/redmine_aws_ssm/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/codecov/c/github/redmine-kit/redmine_aws_ssm?label=Coverage)](https://codecov.io/gh/redmine-kit/redmine_aws_ssm)
 [![License](https://img.shields.io/github/license/redmine-kit/redmine_aws_ssm?label=License)](LICENSE)
 [![Tested with AWS Emulator](https://img.shields.io/badge/Tested%20with-AWS%20Emulator-232F3E)](https://github.com/aws/aws-emulator)
 
-Rails が起動する前に、AWS Systems Manager Parameter Store から設定とシークレットを環境変数に読み込み、`config/database.yml` と `SECRET_KEY_BASE` で使えるようにする Redmine のプラグインです。「AWS」の管理メニューを持つ [Redmine AWS](https://github.com/redmine-kit/redmine_aws) を必要とします。[Serverless](https://github.com/redmine-kit/serverless) の一部で、AWS の認証情報がある Redmine なら、どこでも動きます。
+Rails が起動する前に、AWS Systems Manager Parameter Store から設定とシークレットを環境変数に読み込み、`config/database.yml` と `SECRET_KEY_BASE` で使えるようにする Redmine のプラグインです。「AWS」の管理メニューを持つ [Redmine Kit AWS](https://github.com/redmine-kit/redmine_aws) を必要とします。[Serverless](https://github.com/redmine-kit/serverless) の一部で、AWS の認証情報がある Redmine なら、どこでも動きます。
 
 [English](README.md)
 
@@ -33,4 +33,4 @@ Rails が起動する前に、AWS Systems Manager Parameter Store から設定�
 
 ## ライセンス
 
-Redmine AWS SSM は、GNU General Public License バージョン 2 またはそれ以降のバージョンで公開しています。[LICENSE](LICENSE) を参照してください。Redmine の非公式のプラグインです。
+Redmine Kit AWS SSM は、GNU General Public License バージョン 2 またはそれ以降のバージョンで公開しています。[LICENSE](LICENSE) を参照してください。Redmine の非公式のプラグインです。

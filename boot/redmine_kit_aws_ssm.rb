@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'redmine_aws_ssm/loader'
+require 'redmine_kit_aws_ssm/loader'
 
 # Before the application's configuration, when REDMINE_SSM_PATH is set.
 # config/database.yml and SECRET_KEY_BASE are read after this.
 if defined?(Rails::Railtie)
-  module RedmineAws
+  module RedmineKitAws
     module SSM
       class Railtie < ::Rails::Railtie
         config.before_configuration do

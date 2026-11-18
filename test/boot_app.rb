@@ -6,7 +6,7 @@
 require_relative 'coverage'
 require 'json'
 require 'rails'
-require 'redmine_aws_ssm'
+require 'redmine_kit_aws_ssm'
 
 module BootTest
   class Application < Rails::Application
@@ -21,8 +21,8 @@ result = {
   class_body: BootTest::Application::HOST_IN_CLASS_BODY,
   database_host: database['host'],
   database_password: database['password'],
-  loaded: RedmineAws::SSM.loaded,
-  # redmine_aws's inflections, which the loader requires first.
-  inflections: $LOADED_FEATURES.any? { |file| file.end_with?('/boot/redmine_aws/inflections.rb') }
+  loaded: RedmineKitAws::SSM.loaded,
+  # redmine_kit_aws's inflections, which the loader requires first.
+  inflections: $LOADED_FEATURES.any? { |file| file.end_with?('/boot/redmine_kit_aws/inflections.rb') }
 }
 puts "BOOT_RESULT #{JSON.generate(result)}"

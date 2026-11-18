@@ -6,7 +6,7 @@
 # https://127.0.0.1:9297 and trust the certificate it writes to the volume at
 # each start (AWS_CA_BUNDLE, bin/test). Authentication is off: the tests sign
 # with fixed keys.
-name: redmine-aws-ssm-test
+name: redmine-kit-aws-ssm-test
 networks:
   internal:
     internal: true
@@ -14,7 +14,7 @@ networks:
 services:
   aws-emulator:
     build: aws-emulator
-    image: redmine-aws-ssm-test-aws-emulator
+    image: redmine-kit-aws-ssm-test-aws-emulator
     pull_policy: build
     command: ["--auth", "off"]
     networks: [internal]

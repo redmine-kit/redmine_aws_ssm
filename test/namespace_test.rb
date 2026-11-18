@@ -7,15 +7,15 @@ require 'open3'
 require 'rbconfig'
 require 'tmpdir'
 
-# The boot file defines RedmineAws::SSM before Redmine's code loader
-# (Zeitwerk) sets up, so the loader names the files of the other Redmine AWS
-# plugins under lib/redmine_aws/ at once, with the names that redmine_aws
-# adds (costexplorer.rb is RedmineAws::CostExplorer). Checked in a Rails
+# The boot file defines RedmineKitAws::SSM before Redmine's code loader
+# (Zeitwerk) sets up, so the loader names the files of the other Redmine Kit AWS
+# plugins under lib/redmine_kit_aws/ at once, with the names that redmine_kit_aws
+# adds (costexplorer.rb is RedmineKitAws::CostExplorer). Checked in a Rails
 # application whose loader is set up as Redmine's (test/namespace_app.rb),
-# with a plugin whose files are named as theirs (test/fixtures/redmine_aws_names).
+# with a plugin whose files are named as theirs (test/fixtures/redmine_kit_aws_names).
 class NamespaceTest < Minitest::Test
-  # A plugin whose files are named as the other plugins' (lib/redmine_aws/).
-  FIXTURE = File.expand_path('fixtures/redmine_aws_names', __dir__)
+  # A plugin whose files are named as the other plugins' (lib/redmine_kit_aws/).
+  FIXTURE = File.expand_path('fixtures/redmine_kit_aws_names', __dir__)
 
   # A copy, as the application's root: Rails may write into it.
   def setup
@@ -30,7 +30,7 @@ class NamespaceTest < Minitest::Test
   def test_the_loader_names_the_plugins_files_after_the_boot_file
     result = run_namespace_app
 
-    assert_equal %w[RedmineAws::Admin RedmineAws::CostExplorer RedmineAws::SES RedmineAws::SES::Receiver],
+    assert_equal %w[RedmineKitAws::Admin RedmineKitAws::CostExplorer RedmineKitAws::SES RedmineKitAws::SES::Receiver],
                  result['names']
     assert_match(/\A\d+\.\d+\.\d+\z/, result['version'])
     assert_empty result['loaded']

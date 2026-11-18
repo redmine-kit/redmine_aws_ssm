@@ -5,10 +5,10 @@ require 'open3'
 require 'rbconfig'
 require 'ripper'
 
-# init.rb asks Redmine for redmine_aws before anything else in the register
-# block: without redmine_aws, Redmine then stops with its own message
-# ("... requires the redmine_aws plugin") rather than a NameError from a
-# line that uses redmine_aws's code.
+# init.rb asks Redmine for redmine_kit_aws before anything else in the register
+# block: without redmine_kit_aws, Redmine then stops with its own message
+# ("... requires the redmine_kit_aws plugin") rather than a NameError from a
+# line that uses redmine_kit_aws's code.
 class InitTest < Minitest::Test
   INIT = File.expand_path('../init.rb', __dir__)
 
@@ -29,7 +29,7 @@ class InitTest < Minitest::Test
     end
   RUBY
 
-  def test_requires_redmine_aws_first
+  def test_requires_redmine_kit_aws_first
     assert_equal 'requires_redmine_plugin', first_call_in_register_block
   end
 
@@ -39,7 +39,7 @@ class InitTest < Minitest::Test
     out, status = Open3.capture2e(RbConfig.ruby, '-e', STUB)
 
     assert status.success?, out
-    assert_includes out, "gem 'redmine_aws_ssm' in Redmine's Gemfile.local"
+    assert_includes out, "gem 'redmine_kit_aws_ssm' in Redmine's Gemfile.local"
   end
 
   private

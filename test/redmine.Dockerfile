@@ -11,7 +11,7 @@ RUN curl -fsSLo /tmp/redmine.tar.gz "https://www.redmine.org/releases/redmine-${
   && mv "/redmine-${REDMINE_VERSION}" /redmine \
   && rm /tmp/redmine.tar.gz
 WORKDIR /redmine
-# With the plugin's dependency (aws-sdk-ssm, as redmine_aws_ssm.gemspec
+# With the plugin's dependency (aws-sdk-ssm, as redmine_kit_aws_ssm.gemspec
 # requires it), resolved with Redmine's gems when the image is built, as in
 # the other plugins' test images; bin/test-gem then installs the plugin's
 # gems from their files only (gem install --local).

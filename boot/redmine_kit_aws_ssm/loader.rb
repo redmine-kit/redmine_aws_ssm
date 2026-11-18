@@ -1,24 +1,24 @@
 # frozen_string_literal: true
 
-# The constant names of the Redmine AWS plugins' files (lib/redmine_aws/ses.rb
-# defines RedmineAws::SES), from redmine_aws. Required before RedmineAws is
+# The constant names of the Redmine Kit AWS plugins' files (lib/redmine_kit_aws/ses.rb
+# defines RedmineKitAws::SES), from redmine_kit_aws. Required before RedmineKitAws is
 # defined here: Rails' code loader then names those files when it sets up,
-# before redmine_aws's init.rb runs.
-require 'redmine_aws/inflections'
+# before redmine_kit_aws's init.rb runs.
+require 'redmine_kit_aws/inflections'
 require 'aws-sdk-ssm'
 
-# RedmineAws is the namespace of the Redmine AWS plugins. redmine_aws defines
-# it in its lib/redmine_aws.rb, which Redmine loads only after this file:
+# RedmineKitAws is the namespace of the Redmine Kit AWS plugins. redmine_kit_aws defines
+# it in its lib/redmine_kit_aws.rb, which Redmine loads only after this file:
 # Bundler loads boot/ before Rails initializes. So this file opens the module
-# with nothing in it but RedmineAws::SSM, and redmine_aws loads its file
+# with nothing in it but RedmineKitAws::SSM, and redmine_kit_aws loads its file
 # explicitly from its init.rb.
-module RedmineAws
+module RedmineKitAws
   module SSM
     # The plugin's version, which init.rb and the gemspec read.
     VERSION = '0.1.0'
 
     class << self
-      # The names read at start-up, for the Status tab of redmine_aws.
+      # The names read at start-up, for the Status tab of redmine_kit_aws.
       attr_accessor :loaded
     end
     self.loaded = []

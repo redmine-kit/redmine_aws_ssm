@@ -1,11 +1,11 @@
-# Redmine AWS SSM
+# Redmine Kit AWS SSM
 
 [![CI](https://img.shields.io/github/actions/workflow/status/redmine-kit/redmine_aws_ssm/ci.yml?branch=main&label=CI)](https://github.com/redmine-kit/redmine_aws_ssm/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/codecov/c/github/redmine-kit/redmine_aws_ssm?label=Coverage)](https://codecov.io/gh/redmine-kit/redmine_aws_ssm)
 [![License](https://img.shields.io/github/license/redmine-kit/redmine_aws_ssm?label=License)](LICENSE)
 [![Tested with AWS Emulator](https://img.shields.io/badge/Tested%20with-AWS%20Emulator-232F3E)](https://github.com/aws/aws-emulator)
 
-A Redmine plugin that reads settings and secrets from AWS Systems Manager Parameter Store into environment variables before Rails starts, so that `config/database.yml` and `SECRET_KEY_BASE` can use them. It requires [Redmine AWS](https://github.com/redmine-kit/redmine_aws), which holds the "AWS" administration menu. It is part of [Serverless](https://github.com/redmine-kit/serverless), and works on any Redmine with AWS credentials.
+A Redmine plugin that reads settings and secrets from AWS Systems Manager Parameter Store into environment variables before Rails starts, so that `config/database.yml` and `SECRET_KEY_BASE` can use them. It requires [Redmine Kit AWS](https://github.com/redmine-kit/redmine_aws), which holds the "AWS" administration menu. It is part of [Serverless](https://github.com/redmine-kit/serverless), and works on any Redmine with AWS credentials.
 
 [日本語](README.ja.md)
 
@@ -27,4 +27,4 @@ A Redmine plugin that reads settings and secrets from AWS Systems Manager Parame
 
 ## License
 
-Redmine AWS SSM is released under the GNU General Public License, version 2 or (at your option) any later version. See [LICENSE](LICENSE). An unofficial Redmine plugin.
+Redmine Kit AWS SSM is released under the GNU General Public License, version 2 or (at your option) any later version. See [LICENSE](LICENSE). An unofficial Redmine plugin.

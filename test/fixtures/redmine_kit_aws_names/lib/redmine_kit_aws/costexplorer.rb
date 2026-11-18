@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-# A plugin's entry file named as the Redmine AWS plugins name theirs
+# A plugin's entry file named as the Redmine Kit AWS plugins name theirs
 # (test/namespace_test.rb).
-module RedmineAws
+module RedmineKitAws
   module CostExplorer
     VERSION = '0.0.0'
   end

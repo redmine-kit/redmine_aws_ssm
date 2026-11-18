@@ -1,6 +1,6 @@
-# Redmine AWS SSM
+# Redmine Kit AWS SSM
 
-Redmine AWS SSM (`redmine_aws_ssm`) is a Redmine plugin that reads settings and secrets from AWS Systems Manager Parameter Store into environment variables before Rails starts. [Serverless](https://redmine-kit.github.io/serverless/lambda.html#settings-and-secrets-ssm-parameter-store) installs it in the Lambda image, and it works the same way on any Redmine that has AWS credentials (containers, virtual machines). It does not modify Redmine's own files. The plugin is in early development: the loading is implemented and tested in Serverless's image.
+Redmine Kit AWS SSM (`redmine_kit_aws_ssm`) is a Redmine plugin that reads settings and secrets from AWS Systems Manager Parameter Store into environment variables before Rails starts. [Serverless](https://redmine-kit.github.io/serverless/lambda.html#settings-and-secrets-ssm-parameter-store) installs it in the Lambda image, and it works the same way on any Redmine that has AWS credentials (containers, virtual machines). It does not modify Redmine's own files. The plugin is in early development: the loading is implemented and tested in Serverless's image.
 
 - [Setup](setup.md): requirements, installation, configuration, AWS resources, network, tests
 - [IAM permissions](iam.md): permissions, example policy, resource-based policies
@@ -10,7 +10,7 @@ Redmine AWS SSM (`redmine_aws_ssm`) is a Redmine plugin that reads settings and 
 | Feature | Contents | Enabled when | Page |
 | --- | --- | --- | --- |
 | Settings from Parameter Store | Reads every parameter directly under one path into environment variables, before Rails reads `config/database.yml` and `SECRET_KEY_BASE` | `REDMINE_SSM_PATH` is set | [setup.md](setup.md#configuration) |
-| Names on the administration page | `RedmineAws::SSM.loaded` holds the names of the variables set from Parameter Store (not the values); [Redmine AWS](https://redmine-kit.github.io/redmine_aws/admin.html#status) shows them on the "Status" tab | Same as above | — |
+| Names on the administration page | `RedmineKitAws::SSM.loaded` holds the names of the variables set from Parameter Store (not the values); [Redmine Kit AWS](https://redmine-kit.github.io/redmine_aws/admin.html#status) shows them on the "Status" tab | Same as above | — |
 
 - **Reads one path:** It reads the parameters directly under `REDMINE_SSM_PATH` (for example `/redmine/env/`; the last `/` may be left out) with `GetParametersByPath`, continuing past the 10 parameters of one call, and decrypts `SecureString` parameters.
 - **Names become variables:** The last part of each name is the variable name: `/redmine/env/SECRET_KEY_BASE` becomes `SECRET_KEY_BASE`. Only names that can be environment variables (capital letters, digits and `_`) are read, and deeper paths are not.
@@ -21,11 +21,11 @@ Redmine AWS SSM (`redmine_aws_ssm`) is a Redmine plugin that reads settings and 
 
 The parameters must be in the environment before Rails reads `config/database.yml` (the database host and password) and `SECRET_KEY_BASE`. A plugin's `init.rb` runs much later, when Redmine prepares its code, so the reading is not in `init.rb`.
 
-1. Redmine's `Gemfile.local` adds the plugin as a gem (`redmine_aws_ssm.gemspec`): from GitHub Packages, or by path for a checkout. With the gem, the plugin's files come from `bundle install`, so the line can only be in `Gemfile.local`; a checkout uses the same line with a path. The plugin's own `Gemfile` does not add it as well, because Bundler refuses a gem declared from two sources.
-2. `Bundler.require` in `config/application.rb` loads `boot/redmine_aws_ssm.rb`.
+1. Redmine's `Gemfile.local` adds the plugin as a gem (`redmine_kit_aws_ssm.gemspec`): from GitHub Packages, or by path for a checkout. With the gem, the plugin's files come from `bundle install`, so the line can only be in `Gemfile.local`; a checkout uses the same line with a path. The plugin's own `Gemfile` does not add it as well, because Bundler refuses a gem declared from two sources.
+2. `Bundler.require` in `config/application.rb` loads `boot/redmine_kit_aws_ssm.rb`.
 3. When the application class is defined, its Railtie's `before_configuration` reads the parameters. This is before the class body (including `config/additional_environment.rb`) and before `config/database.yml` is read.
 
-The code is in `boot/`, not `lib/`: Redmine adds a plugin's `lib/` to the autoloaded paths, and a file that Bundler has already required must not be autoloaded again. `init.rb` registers the plugin, so that it is listed in the administration pages, with the version that the boot file defines (`RedmineAws::SSM::VERSION`, which the gemspec reads too); when Bundler has not loaded the boot file (no line in `Gemfile.local`), it stops Redmine with an error that names the missing line. Like every Redmine AWS plugin, it requires [Redmine AWS](https://redmine-kit.github.io/redmine_aws/) (`requires_redmine_plugin` in `init.rb`, and the gem's dependency), but the reading does not use its code: Redmine loads that plugin's code only after the parameters are read. `Bundler.require` loads only the gems in the Gemfiles, not their dependencies, so Bundler does not load `redmine_aws` early. The plugin's code is in `RedmineAws::SSM`, under the namespace of the Redmine AWS plugins, so `boot/` opens the module `RedmineAws` before Redmine AWS defines it; Redmine AWS therefore loads its `lib/redmine_aws.rb` from its own `init.rb` rather than leaving it to Redmine's autoloading. Before that, `boot/` requires Redmine AWS's inflections (`redmine_aws/inflections`, such as `ses` → `SES`): with `RedmineAws` defined early, Rails' code loader names the other plugins' files under `lib/redmine_aws/` when it sets up, before any `init.rb` runs.
+The code is in `boot/`, not `lib/`: Redmine adds a plugin's `lib/` to the autoloaded paths, and a file that Bundler has already required must not be autoloaded again. `init.rb` registers the plugin, so that it is listed in the administration pages, with the version that the boot file defines (`RedmineKitAws::SSM::VERSION`, which the gemspec reads too); when Bundler has not loaded the boot file (no line in `Gemfile.local`), it stops Redmine with an error that names the missing line. Like every Redmine Kit AWS plugin, it requires [Redmine Kit AWS](https://redmine-kit.github.io/redmine_aws/) (`requires_redmine_plugin` in `init.rb`, and the gem's dependency), but the reading does not use its code: Redmine loads that plugin's code only after the parameters are read. `Bundler.require` loads only the gems in the Gemfiles, not their dependencies, so Bundler does not load `redmine_kit_aws` early. The plugin's code is in `RedmineKitAws::SSM`, under the namespace of the Redmine Kit AWS plugins, so `boot/` opens the module `RedmineKitAws` before Redmine Kit AWS defines it; Redmine Kit AWS therefore loads its `lib/redmine_kit_aws.rb` from its own `init.rb` rather than leaving it to Redmine's autoloading. Before that, `boot/` requires Redmine Kit AWS's inflections (`redmine_kit_aws/inflections`, such as `ses` → `SES`): with `RedmineKitAws` defined early, Rails' code loader names the other plugins' files under `lib/redmine_kit_aws/` when it sets up, before any `init.rb` runs.
 
 ## Each process
 
@@ -41,4 +41,4 @@ If Parameter Store returns an error (no route, no permission), the plugin raises
 
 ## License
 
-Redmine AWS SSM is released under the GNU General Public License, version 2 or (at your option) any later version. See [LICENSE](../LICENSE). An unofficial Redmine plugin.
+Redmine Kit AWS SSM is released under the GNU General Public License, version 2 or (at your option) any later version. See [LICENSE](../LICENSE). An unofficial Redmine plugin.

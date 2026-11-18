@@ -5,16 +5,16 @@
 # plugins' lib/ are root directories (Redmine::PluginLoader), and the
 # loaders get a new inflector in an initializer
 # (config/initializers/zeitwerk.rb). The plugin's boot file is loaded first,
-# as Bundler loads it, so RedmineAws is defined before the loader sets up.
-# It prints, as JSON, what the files under lib/redmine_aws define.
+# as Bundler loads it, so RedmineKitAws is defined before the loader sets up.
+# It prints, as JSON, what the files under lib/redmine_kit_aws define.
 require_relative 'coverage'
 require 'json'
 require 'logger'
 require 'rails'
-require 'redmine_aws_ssm'
+require 'redmine_kit_aws_ssm'
 
 module NamespaceApp
-  REDMINE_AWS = Gem.loaded_specs.fetch('redmine_aws').full_gem_path
+  REDMINE_KIT_AWS = Gem.loaded_specs.fetch('redmine_kit_aws').full_gem_path
   ROOT = ENV.fetch('NAMESPACE_TEST_ROOT')
 
   class Application < Rails::Application
@@ -23,22 +23,22 @@ module NamespaceApp
     config.logger = Logger.new(nil)
 
     initializer 'namespace_app.loaders' do
-      [File.join(REDMINE_AWS, 'lib'), File.join(ROOT, 'lib')].each { |dir| Rails.autoloaders.main.push_dir(dir) }
+      [File.join(REDMINE_KIT_AWS, 'lib'), File.join(ROOT, 'lib')].each { |dir| Rails.autoloaders.main.push_dir(dir) }
       Rails.autoloaders.each { |loader| loader.inflector = Zeitwerk::Inflector.new }
     end
   end
 end
 
 NamespaceApp::Application.initialize!
-# What redmine_aws's init.rb does: the loader skips lib/redmine_aws.rb,
-# because RedmineAws is defined already.
-require File.join(NamespaceApp::REDMINE_AWS, 'lib/redmine_aws') unless defined?(RedmineAws::VERSION)
+# What redmine_kit_aws's init.rb does: the loader skips lib/redmine_kit_aws.rb,
+# because RedmineKitAws is defined already.
+require File.join(NamespaceApp::REDMINE_KIT_AWS, 'lib/redmine_kit_aws') unless defined?(RedmineKitAws::VERSION)
 # What bin/rails zeitwerk:check does.
 Zeitwerk::Loader.eager_load_all
 
 result = {
-  version: RedmineAws::VERSION,
-  names: [RedmineAws::Admin, RedmineAws::CostExplorer, RedmineAws::SES, RedmineAws::SES::Receiver].map(&:name),
-  loaded: RedmineAws::SSM.loaded
+  version: RedmineKitAws::VERSION,
+  names: [RedmineKitAws::Admin, RedmineKitAws::CostExplorer, RedmineKitAws::SES, RedmineKitAws::SES::Receiver].map(&:name),
+  loaded: RedmineKitAws::SSM.loaded
 }
 puts "NAMESPACE_RESULT #{JSON.generate(result)}"
