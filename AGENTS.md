@@ -12,7 +12,7 @@ Redmine Kit AWS SSM (`redmine_kit_aws_ssm`) is a Redmine plugin that reads setti
 - **redmine_kit_aws:** the plugin requires [redmine_kit_aws](https://github.com/redmine-kit/redmine_aws), as every Redmine Kit AWS plugin does (`requires_redmine_plugin` in `init.rb`, the gem's dependency), but `boot/` must not use its code: it runs before Rails initializes, when Redmine has loaded no plugin yet. It requires only `redmine_kit_aws/inflections`, first, then opens the namespace `RedmineKitAws` early and defines nothing in it but `RedmineKitAws::SSM`; redmine_kit_aws loads its own `lib/redmine_kit_aws.rb` from its `init.rb` for that reason. The "Status" tab of redmine_kit_aws reads `RedmineKitAws::SSM.loaded`.
 - **Off without its setting:** without `REDMINE_SSM_PATH`, nothing is read.
 - **Never print values:** log and keep only names, never parameter values.
-- **Tests:** `bin/test` runs `test/*_test.rb` in Docker against AWS Emulator, on a network that cannot reach AWS, with coverage; CI runs it and uploads to Codecov. `test/loader_test.rb` must also run alone with the loader required first, as Serverless runs it inside its image.
+- **Tests:** `bin/test` runs `test/*_test.rb` in a container (Apple container, else Docker) against AWS Emulator, on a network that cannot reach AWS, with coverage; CI runs it and uploads to Codecov. `test/loader_test.rb` must also run alone with the loader required first, as Serverless runs it inside its image.
 - **No secrets in the repository.**
 
 ## Documentation
@@ -28,3 +28,9 @@ Redmine Kit AWS SSM (`redmine_kit_aws_ssm`) is a Redmine plugin that reads setti
 - English, imperative mood, 72 characters or fewer in the first line, no trailing period.
 - One purpose per commit.
 - Do not rewrite pushed history.
+
+## Development environment
+
+- **Apple container first, Docker too** (a public repository). Scripts (`bin/test`, databases, emulators) use Apple container (`container`) when it is installed and running, else Docker (other machines, CI); `CONTAINER_CLI=docker|container` chooses. Docs give both, Apple container first. Images are built from the `Dockerfile` with either tool.
+- **Libraries at their latest versions.** Dependencies are kept at their latest stable releases, pinned exactly in the lockfiles; a version held back has its reason next to the pin.
+- Both are the organization's rules (`../AGENTS.md`, "Development environment").
