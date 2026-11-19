@@ -5,7 +5,8 @@
 # In Docker, the service of test/compose.yml; the tests run in its network
 # namespace and trust the certificate it wrote at start-up. In Apple
 # container, which can't share a network namespace, a container of its own on
-# an internal network ($name, with no way out to AWS); the tests run on that
+# the internal network the tests of every repository share (bin/container_cli,
+# with no way out to AWS); the tests run on that
 # network, forward 127.0.0.1:9297 to it (test/aws_forward.rb), since its
 # certificate names only 127.0.0.1 and localhost, and trust the certificate
 # copied out of it. aws_emulator_up sets $aws (the options of the tests'
@@ -31,10 +32,10 @@ aws_emulator_up() {
     emulator_image=$name-aws-emulator:$(shasum test/aws-emulator/Dockerfile | cut -c1-12)
     container image inspect "$emulator_image" >/dev/null 2>&1 ||
       build_image "$emulator_image" test/aws-emulator/Dockerfile test/aws-emulator
-    container network inspect "$name" >/dev/null 2>&1 || container network create --internal "$name" >/dev/null
+    ensure_shared_network "$kit_test_internal_network" --internal
     if ! container_running "$emulator" || ! container inspect "$emulator" | grep -q "$emulator_image"; then
       container rm -f "$emulator" >/dev/null 2>&1 || true
-      container run -d --name "$emulator" --network "$name" -m 2G --progress none "$emulator_image" --auth off >/dev/null
+      container run -d --name "$emulator" --network "$kit_test_internal_network" -m 2G --progress none "$emulator_image" --auth off >/dev/null
     fi
     for _ in $(seq 60); do
       container exec "$emulator" curl -fsk https://127.0.0.1:9297/__admin/health >/dev/null 2>&1 && break
@@ -42,7 +43,7 @@ aws_emulator_up() {
     done
     aws_ca=$(mktemp -d)
     container exec "$emulator" cat "$emulator_ca" >"$aws_ca/ca.pem"
-    aws=(--network "$name" -v "$aws_ca:/aws-emulator:ro" -e AWS_CA_BUNDLE=/aws-emulator/ca.pem
+    aws=(--network "$kit_test_internal_network" -v "$aws_ca:/aws-emulator:ro" -e AWS_CA_BUNDLE=/aws-emulator/ca.pem
       -e AWS_EMULATOR_ADDRESS="$(container_address "$emulator")")
     # Started in the tests' container before the tests, from the directory that
     # holds test/; waits until it listens.
@@ -60,6 +61,5 @@ aws_emulator_down() {
     docker compose -f test/compose.yml -p "$name" down -v
   else
     container rm -f "$name-aws-emulator" >/dev/null 2>&1 || true
-    container network rm "$name" >/dev/null 2>&1 || true
   fi
 }
