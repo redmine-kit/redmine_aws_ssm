@@ -7,7 +7,7 @@
 Gem::Specification.new do |spec|
   spec.name = 'redmine_kit_aws_ssm'
   spec.version = File.read(File.join(__dir__, 'boot/redmine_kit_aws_ssm/loader.rb'))[/VERSION = '([^']+)'/, 1]
-  spec.summary = 'Loads environment variables from AWS Systems Manager Parameter Store before Rails starts'
+  spec.summary = 'Loads environment variables from AWS Systems Manager Parameter Store'
   spec.authors = ['Redmine Kit']
   spec.license = 'GPL-2.0-or-later'
   spec.homepage = 'https://github.com/redmine-kit/redmine_aws_ssm'
