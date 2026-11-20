@@ -14,7 +14,8 @@ Gem::Specification.new do |spec|
   # The Ruby versions of Redmine 7.0 (its Gemfile: ruby '>= 3.2.0', '< 4.1.0').
   spec.required_ruby_version = '>= 3.2'
   # The tests are included: Serverless runs them inside its image.
-  spec.files = Dir['{init.rb,LICENSE}', 'boot/**/*.rb', 'test/**/*.rb']
+  # config/locales: the plugin's name and description in Redmine's languages.
+  spec.files = Dir['{init.rb,LICENSE}', 'boot/**/*.rb', 'config/locales/*.yml', 'test/**/*.rb']
   spec.require_paths = ['boot']
   spec.add_dependency 'aws-sdk-ssm', '~> 1.0'
   # Required by every Redmine Kit AWS plugin. Bundler.require does not load a

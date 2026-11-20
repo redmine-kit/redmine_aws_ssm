@@ -18,7 +18,7 @@ Redmine::Plugin.register :redmine_kit_aws_ssm do
   requires_redmine_plugin :redmine_kit_aws, version_or_higher: '0.1.0'
   name 'Redmine Kit AWS SSM'
   author 'Redmine Kit'
-  description 'Loads environment variables from AWS Systems Manager Parameter Store before Rails starts'
+  description 'Loads environment variables from AWS Systems Manager Parameter Store'
   version RedmineKit::Aws::Ssm::VERSION
   url 'https://github.com/redmine-kit/redmine_aws_ssm'
   author_url 'https://github.com/redmine-kit'
