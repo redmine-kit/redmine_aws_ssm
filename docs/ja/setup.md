@@ -21,15 +21,7 @@ Redmine Kit AWS SSM を使う Redmine に必要なもの (インストール、�
 
 ### gem
 
-バージョンのタグごとに、プラグインを gem として GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`) に公開します。GitHub Packages からインストールするには、公開のパッケージでも、`read:packages` の権限を持つ GitHub のトークンが必要です。gem には、実行に必要なファイル (`init.rb`、`boot/`、`LICENSE`) と、テスト (`test/**/*.rb`) が入ります。テストは、Serverless が自身のイメージで実行します (`test/loader_test.rb`)。gem は `redmine_kit_aws` の gem に依存するので、Bundler が同じソースからいっしょにインストールします。Redmine は `plugins/` のプラグインだけを読み込むので、インストールした 2 つの gem をそこにリンクします。
-
-Bundler は、それぞれのリポジトリからもプラグインをインストールできます。この場合、トークンは不要です。`plugins/` へのリンクは上と同じです。
-
-```ruby
-# Redmine の Gemfile.local
-gem 'redmine_kit_aws', git: 'https://github.com/redmine-kit/redmine_aws.git', tag: 'v0.1.0', require: false
-gem 'redmine_kit_aws_ssm', git: 'https://github.com/redmine-kit/redmine_aws_ssm.git', tag: 'v0.1.0'
-```
+バージョンのタグごとに、プラグインを gem として GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`) に公開します。GitHub Packages からインストールするには、公開のパッケージでも、`read:packages` の権限を持つ GitHub のトークンが必要です。gem には、実行に必要なファイル (`init.rb`、`boot/`、`config/locales/`、`LICENSE`) と、テスト (`test/**/*.rb`) が入ります。テストは、Serverless が自身のイメージで実行します (`test/loader_test.rb`)。gem は `redmine_kit_aws` の gem に依存するので、Bundler が同じソースからいっしょにインストールします。Redmine は `plugins/` のプラグインだけを読み込むので、インストールした 2 つの gem をそこにリンクします。
 
 ```ruby
 # Redmine の Gemfile.local
@@ -43,6 +35,14 @@ bundle config set --global rubygems.pkg.github.com <ユーザー>:<トークン>
 bundle install
 ln -s "$(bundle info --path redmine_kit_aws)" plugins/redmine_kit_aws
 ln -s "$(bundle info --path redmine_kit_aws_ssm)" plugins/redmine_kit_aws_ssm
+```
+
+Bundler は、それぞれのリポジトリからもプラグインをインストールできます。この場合、トークンは不要です。`plugins/` へのリンクは上と同じです。
+
+```ruby
+# Redmine の Gemfile.local
+gem 'redmine_kit_aws', git: 'https://github.com/redmine-kit/redmine_aws.git', tag: 'v0.1.0', require: false
+gem 'redmine_kit_aws_ssm', git: 'https://github.com/redmine-kit/redmine_aws_ssm.git', tag: 'v0.1.0'
 ```
 
 <a id="without-the-gem"></a>

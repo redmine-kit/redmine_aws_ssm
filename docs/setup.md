@@ -15,15 +15,7 @@ What a Redmine server needs to use Redmine Kit AWS SSM: installation, configurat
 
 ### Gem
 
-Each version tag publishes the plugin as a gem to GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`). Installing from GitHub Packages needs a GitHub token with `read:packages`, even for a public package. The gem holds the plugin's run-time files (`init.rb`, `boot/`, `LICENSE`) and its tests (`test/**/*.rb`), which Serverless runs inside its image (`test/loader_test.rb`). The gem depends on the gem `redmine_kit_aws`, so Bundler installs it from the same source. Redmine loads plugins only from `plugins/`, so both installed gems are linked there:
-
-Bundler can also install the plugins from their repositories, which needs no token; link them into `plugins/` as above:
-
-```ruby
-# Redmine's Gemfile.local
-gem 'redmine_kit_aws', git: 'https://github.com/redmine-kit/redmine_aws.git', tag: 'v0.1.0', require: false
-gem 'redmine_kit_aws_ssm', git: 'https://github.com/redmine-kit/redmine_aws_ssm.git', tag: 'v0.1.0'
-```
+Each version tag publishes the plugin as a gem to GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`). Installing from GitHub Packages needs a GitHub token with `read:packages`, even for a public package. The gem holds the plugin's run-time files (`init.rb`, `boot/`, `config/locales/`, `LICENSE`) and its tests (`test/**/*.rb`), which Serverless runs inside its image (`test/loader_test.rb`). The gem depends on the gem `redmine_kit_aws`, so Bundler installs it from the same source. Redmine loads plugins only from `plugins/`, so both installed gems are linked there:
 
 ```ruby
 # Redmine's Gemfile.local
@@ -37,6 +29,14 @@ bundle config set --global rubygems.pkg.github.com <user>:<token>   # or the var
 bundle install
 ln -s "$(bundle info --path redmine_kit_aws)" plugins/redmine_kit_aws
 ln -s "$(bundle info --path redmine_kit_aws_ssm)" plugins/redmine_kit_aws_ssm
+```
+
+Bundler can also install the plugins from their repositories, which needs no token; link them into `plugins/` as above:
+
+```ruby
+# Redmine's Gemfile.local
+gem 'redmine_kit_aws', git: 'https://github.com/redmine-kit/redmine_aws.git', tag: 'v0.1.0', require: false
+gem 'redmine_kit_aws_ssm', git: 'https://github.com/redmine-kit/redmine_aws_ssm.git', tag: 'v0.1.0'
 ```
 
 ### Without the gem
