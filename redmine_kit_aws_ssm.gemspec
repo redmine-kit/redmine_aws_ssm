@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.license = 'GPL-2.0-or-later'
   spec.homepage = 'https://github.com/redmine-kit/redmine_aws_ssm'
   # The Ruby versions of Redmine 7.0 (its Gemfile: ruby '>= 3.2.0', '< 4.1.0').
-  spec.required_ruby_version = '>= 3.2'
+  spec.required_ruby_version = ['>= 3.2', '< 4.1']
   # The tests are included: Serverless runs them inside its image.
   # config/locales: the plugin's name and description in Redmine's languages.
   spec.files = Dir['{init.rb,LICENSE}', 'boot/**/*.rb', 'config/locales/*.yml', 'test/**/*.rb']
