@@ -1,0 +1,6 @@
+# The sidebar section of this plugin's help, read by Redmine Kit Help
+# (redmine_kit_help's docs/extending.md). The plugin has no screen of its own, so it has no map.yml.
+sections:
+  - id: aws-ssm
+    title: Redmine Kit AWS SSM
+    topics: [aws-ssm/ssm]

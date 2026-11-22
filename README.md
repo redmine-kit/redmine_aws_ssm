@@ -16,6 +16,14 @@ A Redmine plugin that reads settings and secrets from AWS Systems Manager Parame
 - Website: https://redmine-kit.github.io/redmine_aws_ssm/ ([日本語](https://redmine-kit.github.io/redmine_aws_ssm/ja/))
 - Markdown: [docs/README.md](docs/README.md) ([日本語](docs/ja/README.md)), with [setup](docs/setup.md) and [IAM permissions](docs/iam.md)
 
+## Help
+
+With [Redmine Kit Help](https://github.com/redmine-kit/redmine_help) installed, the plugin's help is in `help/`: the topic Settings from Parameter Store (English and Japanese), for system administrators. The plugin has no screen of its own, so it has no `help/map.yml`. Check it against the installed guide from Redmine's folder:
+
+```sh
+bin/rails redmine_kit:help:check PLUGIN=redmine_kit_aws_ssm
+```
+
 ## Sponsors
 
 <a href="https://www.keyselect.co.jp/">

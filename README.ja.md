@@ -18,6 +18,16 @@ Rails が起動する前に、AWS Systems Manager Parameter Store から設定�
 - Web サイト: https://redmine-kit.github.io/redmine_aws_ssm/ja/ (English: https://redmine-kit.github.io/redmine_aws_ssm/)
 - Markdown: [docs/ja/README.md](docs/ja/README.md) (English: [docs/README.md](docs/README.md))。[導入](docs/ja/setup.md)、[IAM 権限](docs/ja/iam.md) があります。
 
+<a id="help"></a>
+
+## ヘルプ
+
+[Redmine Kit Help](https://github.com/redmine-kit/redmine_help) をインストールしていれば、プラグインのヘルプは `help/` にあります。システム管理者向けのトピック「Parameter Store からの設定」(英語と日本語) です。プラグインに専用の画面はないので、`help/map.yml` はありません。Redmine のディレクトリで、インストールされたガイドに対してチェックできます。
+
+```sh
+bin/rails redmine_kit:help:check PLUGIN=redmine_kit_aws_ssm
+```
+
 <a id="sponsors"></a>
 
 ## スポンサー
