@@ -18,7 +18,8 @@ Gem::Specification.new do |spec|
   # The tests are included: Serverless runs them inside its image.
   # config/locales: the plugin's name and description in Redmine's languages;
   # help: its pages for Redmine Kit Help.
-  spec.files = Dir['{init.rb,LICENSE}', 'boot/**/*.rb', 'config/locales/*.yml', 'help/**/*', 'test/**/*.rb', 'config/dependencies.{rb,yml}']
+  spec.files = Dir['{init.rb,LICENSE}', 'boot/**/*.rb', 'config/locales/*.yml', 'help/**/*', 'test/**/*.rb',
+                   'config/dependencies.{rb,yml}']
   spec.require_paths = ['boot']
   spec.add_dependency 'aws-sdk-ssm', '~> 1.0'
   # Required by every Redmine Kit AWS plugin. Bundler.require does not load a
