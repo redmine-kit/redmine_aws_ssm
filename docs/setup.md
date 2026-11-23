@@ -7,15 +7,30 @@ What a Redmine server needs to use Redmine Kit AWS SSM: installation, configurat
 - Redmine 7.0 or later, on Ruby 3.2 or later (Redmine 7.0 supports Ruby 3.2 to 4.0; the CI tests on both).
 - A process with AWS credentials that can call SSM (an execution role on Lambda, an instance profile or a task role elsewhere).
 
+### Required plugins
+
+| Plugin | Used for |
+| --- | --- |
+| [Redmine Kit AWS](https://github.com/redmine-kit/redmine_aws) | the AWS administration menu and the settings shared by the AWS plugins |
+
+Without it, Redmine stops at boot and names it. Installed as a gem, this plugin installs it
+([Installation](#installation)).
+
+### Optional plugins
+
+| Plugin | With it |
+| --- | --- |
+| [Redmine Kit Help](https://github.com/redmine-kit/redmine_help) | this plugin's help in the Help panel |
+
 ## Installation
 
-1. Put the plugin in `plugins/redmine_kit_aws_ssm`, and [Redmine Kit AWS](https://redmine-kit.github.io/redmine_aws/), which it requires, in `plugins/redmine_kit_aws`: install the gem ([Gem](#gem)) or clone the repositories ([Without the gem](#without-the-gem)). Redmine loads plugins in alphabetical order, so `redmine_kit_aws` comes first.
+1. Put the plugin in `plugins/redmine_kit_aws_ssm`, and [Redmine Kit AWS](https://redmine-kit.github.io/redmine_aws/), which it requires, in `plugins/redmine_kit_aws`: install the gem ([Gem](#gem)) or clone the repositories ([Without the gem](#without-the-gem)). The order doesn't matter: at boot, Redmine stops and names `redmine_kit_aws` when it is missing ([Required plugins](#required-plugins)).
 2. Either way, the plugin is a gem line in `Gemfile.local`. That line makes Bundler load the plugin before Rails reads the configuration ([README.md](README.md#when-it-reads)).
 3. No migration is needed.
 
 ### Gem
 
-Each version tag publishes the plugin as a gem to GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`). Installing from GitHub Packages needs a GitHub token with `read:packages`, even for a public package. The gem holds the plugin's run-time files (`init.rb`, `boot/`, `config/locales/`, `LICENSE`) and its tests (`test/**/*.rb`), which Serverless runs inside its image (`test/loader_test.rb`). The gem depends on the gem `redmine_kit_aws`, so Bundler installs it from the same source. Redmine loads plugins only from `plugins/`, so both installed gems are linked there:
+`bin/release` publishes each version of the plugin as a gem to GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`, [Releasing](#releasing)). Installing from GitHub Packages needs a GitHub token with `read:packages`, even for a public package. The gem holds the plugin's run-time files (`init.rb`, `boot/`, `config/locales/`, `LICENSE`) and its tests (`test/**/*.rb`), which Serverless runs inside its image (`test/loader_test.rb`). The gem depends on the gem `redmine_kit_aws`, so Bundler installs it from the same source. Redmine loads plugins only from `plugins/`, so both installed gems are linked there:
 
 ```ruby
 # Redmine's Gemfile.local
@@ -90,7 +105,7 @@ The call is made once when each process starts. If the endpoint cannot be reache
 
 A run stops the service containers it started (it doesn't remove them) when it ends, whether the tests pass, fail or are interrupted. Containers that were running before the run, or that another run of this repository still uses, are left running. `KEEP_SERVICES=1` keeps them running after the run.
 
-`bin/test-gem` checks the gem: it builds the gems of the plugin and of Redmine Kit AWS from the checkouts, installs them as [Gem](#gem) says into Redmine 7.0.3 on SQLite, links them into `plugins/` and starts Redmine with every file loaded (`zeitwerk:check`, and the production environment, which loads them at start-up). CI runs it too, so a file missing from the gem fails before a version tag publishes it.
+`bin/test-gem` checks the gem: it builds the gems of the plugin and of Redmine Kit AWS from the checkouts, installs them as [Gem](#gem) says into Redmine 7.0.3 on SQLite, links them into `plugins/` and starts Redmine with every file loaded (`zeitwerk:check`, and the production environment, which loads them at start-up). `bin/release` runs it too, so a file missing from the gem fails before a release publishes it.
 
 ```sh
 bin/test-gem
@@ -102,10 +117,20 @@ bin/test-gem
 | `test/boot_test.rb` | A Rails 8.1 application, defined as Redmine's is, starts in a process of its own with `REDMINE_SSM_PATH`. The values from Parameter Store are in the environment in the application's class body (where Redmine evaluates `config/additional_environment.rb`) and in `config/database.yml`; without the path nothing is read; start-up fails when Parameter Store cannot be reached |
 | `test/namespace_test.rb` | A Rails 8.1 application whose code loader is set up as Redmine 7.0's (the plugins' `lib/` as root directories, a new inflector given in an initializer) starts in a process of its own with the boot file loaded first. The files of another plugin under `lib/redmine_kit/aws/` load with the code loader's default names (`costexplorer.rb` is `RedmineKit::Aws::Costexplorer`), and Redmine Kit AWS's own files load after `RedmineKit::Aws` was defined early; the plugin has no `lib/redmine_kit.rb` |
 | `test/network_test.rb` | The tests cannot open a connection to SSM or STS on AWS (on the network of `bin/test`) |
-| `test/init_test.rb` | `init.rb` asks for Redmine Kit AWS (`requires_redmine_plugin`) before anything else in the plugin's registration |
+| `test/init_test.rb` | `init.rb` stops Redmine and names Redmine Kit AWS when it is missing (`config/dependencies.rb`), and names the line of `Gemfile.local` when the boot file did not run |
 | `test/version_test.rb` | The gemspec has the version of the code (`RedmineKit::Aws::Ssm::VERSION`) |
 
 Serverless also runs `test/loader_test.rb` inside its image (`bin/test-image`). There, the three roles read the database host, its password and `SECRET_KEY_BASE` only from Parameter Store ([Serverless testing.md](https://redmine-kit.github.io/serverless/testing.html#image-tests)).
+
+## Releasing
+
+`bin/release` publishes the gem of the gemspec's version to Redmine Kit's registry on GitHub Packages, from a clean
+`main` only: the version must be newer than the last tag `v<version>`, the required plugins must resolve from the
+registry at their ranges (`config/dependencies.yml`), and `bin/lint`, `bin/test` and `bin/test-gem` must pass. It
+pushes with the key `github` of `~/.gem/credentials` (`:github: Bearer <token>`, a token with `write:packages`) and
+reads the registry with `BUNDLE_RUBYGEMS__PKG__GITHUB__COM`; no token goes into the repository or the output. It makes
+the signed tag `v<version>` and prints the command that pushes it. Versions are semantic: a change that breaks a plugin
+using this one raises the major version (the minor one before 1.0), and the ranges in the plugins that require it.
 
 ## To verify
 

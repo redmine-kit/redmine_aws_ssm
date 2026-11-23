@@ -9,11 +9,29 @@ Redmine Kit AWS SSM を使う Redmine に必要なもの (インストール、�
 - Redmine 7.0 以降、Ruby 3.2 以降 (Redmine 7.0 が対応するのは Ruby 3.2 から 4.0。CI は両方でテストします)。
 - SSM を呼び出せる AWS の認証情報を持つプロセス (Lambda では実行ロール、それ以外ではインスタンスプロファイルやタスクロール)。
 
+<a id="required-plugins"></a>
+
+### 必須プラグイン
+
+| プラグイン | 用途 |
+| --- | --- |
+| [Redmine Kit AWS](https://github.com/redmine-kit/redmine_aws) | 「AWS」の管理メニューと、AWS のプラグインが共有する設定 |
+
+ないときは、Redmine が起動時に停止し、そのプラグインの名前を示します。gem としてインストールすると、このプラグインがそれもインストールします ([インストール](#installation))。
+
+<a id="optional-plugins"></a>
+
+### オプションのプラグイン
+
+| プラグイン | 使える機能 |
+| --- | --- |
+| [Redmine Kit Help](https://github.com/redmine-kit/redmine_help) | ヘルプのパネルに表示するこのプラグインのヘルプ |
+
 <a id="installation"></a>
 
 ## インストール
 
-1. プラグインを `plugins/redmine_kit_aws_ssm` に、このプラグインが必要とする [Redmine Kit AWS](https://redmine-kit.github.io/redmine_aws/ja/) を `plugins/redmine_kit_aws` に置きます。gem をインストールするか ([gem](#gem))、リポジトリをクローンします ([gem を使わないとき](#without-the-gem))。Redmine はプラグインをアルファベット順に読み込むので、`redmine_kit_aws` が先になります。
+1. プラグインを `plugins/redmine_kit_aws_ssm` に、このプラグインが必要とする [Redmine Kit AWS](https://redmine-kit.github.io/redmine_aws/ja/) を `plugins/redmine_kit_aws` に置きます。gem をインストールするか ([gem](#gem))、リポジトリをクローンします ([gem を使わないとき](#without-the-gem))。順序は問いません。`redmine_kit_aws` がないときは、Redmine が起動時に停止し、その名前を示します ([必須プラグイン](#required-plugins))。
 2. どちらの場合も、プラグインは `Gemfile.local` に gem として追加します。この行によって、Rails が設定を読み込む前に Bundler がプラグインを読み込みます ([README.md](README.md#when-it-reads))。
 3. migration は不要です。
 
@@ -21,7 +39,7 @@ Redmine Kit AWS SSM を使う Redmine に必要なもの (インストール、�
 
 ### gem
 
-バージョンのタグごとに、プラグインを gem として GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`) に公開します。GitHub Packages からインストールするには、公開のパッケージでも、`read:packages` の権限を持つ GitHub のトークンが必要です。gem には、実行に必要なファイル (`init.rb`、`boot/`、`config/locales/`、`LICENSE`) と、テスト (`test/**/*.rb`) が入ります。テストは、Serverless が自身のイメージで実行します (`test/loader_test.rb`)。gem は `redmine_kit_aws` の gem に依存するので、Bundler が同じソースからいっしょにインストールします。Redmine は `plugins/` のプラグインだけを読み込むので、インストールした 2 つの gem をそこにリンクします。
+`bin/release` が、各バージョンのプラグインを gem として GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`。[リリース](#releasing)) に公開します。GitHub Packages からインストールするには、公開のパッケージでも、`read:packages` の権限を持つ GitHub のトークンが必要です。gem には、実行に必要なファイル (`init.rb`、`boot/`、`config/locales/`、`LICENSE`) と、テスト (`test/**/*.rb`) が入ります。テストは、Serverless が自身のイメージで実行します (`test/loader_test.rb`)。gem は `redmine_kit_aws` の gem に依存するので、Bundler が同じソースからいっしょにインストールします。Redmine は `plugins/` のプラグインだけを読み込むので、インストールした 2 つの gem をそこにリンクします。
 
 ```ruby
 # Redmine の Gemfile.local
@@ -108,7 +126,7 @@ bundle install
 
 実行は、終わったときに (テストの成功、失敗、中断のいずれでも)、自分が起動したサービスのコンテナを停止します (削除はしません)。実行の前から動いていたコンテナと、このリポジトリの別の実行がまだ使っているコンテナは、そのまま動かしておきます。`KEEP_SERVICES=1` を指定すると、実行の後も動かしたままにします。
 
-`bin/test-gem` は gem を確認します。チェックアウトからプラグインと Redmine Kit AWS の gem をビルドし、[gem](#gem) のとおりに SQLite の Redmine 7.0.3 にインストールして `plugins/` にリンクし、すべてのファイルを読み込んで Redmine を起動します (`zeitwerk:check` と、起動時にすべてを読み込む production 環境)。CI もこれを実行するので、gem にないファイルがあれば、バージョンのタグで公開する前に失敗します。
+`bin/test-gem` は gem を確認します。チェックアウトからプラグインと Redmine Kit AWS の gem をビルドし、[gem](#gem) のとおりに SQLite の Redmine 7.0.3 にインストールして `plugins/` にリンクし、すべてのファイルを読み込んで Redmine を起動します (`zeitwerk:check` と、起動時にすべてを読み込む production 環境)。`bin/release` もこれを実行するので、gem にないファイルがあれば、リリースで公開する前に失敗します。
 
 ```sh
 bin/test-gem
@@ -120,10 +138,15 @@ bin/test-gem
 | `test/boot_test.rb` | Redmine と同じ形で定義した Rails 8.1 のアプリケーションを、`REDMINE_SSM_PATH` を設定して別のプロセスで起動する。アプリケーションクラスの本体 (Redmine が `config/additional_environment.rb` を評価するところ) と `config/database.yml` で、Parameter Store の値が環境変数になっていること。パスがなければ何も読み込まないこと。Parameter Store に接続できなければ起動が失敗すること |
 | `test/namespace_test.rb` | コードローダーを Redmine 7.0 と同じ形 (プラグインの `lib/` をルートディレクトリにし、イニシャライザーで新しいインフレクタを設定する) にした Rails 8.1 のアプリケーションを、boot ファイルを先に読み込んで別のプロセスで起動する。別のプラグインの `lib/redmine_kit/aws/` のファイルを、コードローダーの既定の名前で読み込めること (`costexplorer.rb` は `RedmineKit::Aws::Costexplorer`)。`RedmineKit::Aws` を先に定義しても、Redmine Kit AWS 自身のファイルを読み込めること。プラグインに `lib/redmine_kit.rb` がないこと |
 | `test/network_test.rb` | テストから AWS の SSM と STS に接続できない (`bin/test` のネットワークで) |
-| `test/init_test.rb` | `init.rb` が、プラグインの登録の中でほかの何よりも先に Redmine Kit AWS を要求する (`requires_redmine_plugin`) |
+| `test/init_test.rb` | Redmine Kit AWS がないとき、`init.rb` が Redmine を停止してその名前を示す (`config/dependencies.rb`)。boot のファイルが実行されていないとき、`Gemfile.local` の行を示す |
 | `test/version_test.rb` | gemspec のバージョンがコードのバージョン (`RedmineKit::Aws::Ssm::VERSION`) と同じ |
 
 Serverless も、イメージの中で `test/loader_test.rb` を実行します (`bin/test-image`)。そこでは、3 つの役割が、データベースのホスト、そのパスワード、`SECRET_KEY_BASE` を Parameter Store だけから読み込みます ([Serverless の testing.md](https://redmine-kit.github.io/serverless/ja/testing.html#image-tests))。
+
+<a id="releasing"></a>
+## リリース
+
+`bin/release` は、gemspec のバージョンの gem を GitHub Packages の Redmine Kit のレジストリに公開します。実行できるのは変更のない `main` からだけで、バージョンが最後のタグ `v<version>` より新しいこと、必須プラグインがレジストリから範囲どおりに解決できること (`config/dependencies.yml`)、`bin/lint`、`bin/test`、`bin/test-gem` が成功することが条件です。公開には `~/.gem/credentials` のキー `github` (`:github: Bearer <token>`。`write:packages` を持つトークン) を使い、レジストリの読み取りには `BUNDLE_RUBYGEMS__PKG__GITHUB__COM` を使います。トークンはリポジトリにも出力にも含めません。署名付きのタグ `v<version>` を作り、それをプッシュするコマンドを表示します。バージョンはセマンティックバージョニングに従います。このプラグインを使うプラグインが動かなくなる変更ではメジャーバージョン (1.0 より前はマイナーバージョン) を上げ、それを必要とするプラグインの範囲も変えます。
 
 <a id="to-verify"></a>
 

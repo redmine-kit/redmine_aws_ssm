@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+# The plugins this one requires (config/dependencies.yml): without one,
+# Redmine stops here and names it.
+load File.expand_path('config/dependencies.rb', __dir__)
+
 # The loading itself happens earlier, in boot/redmine_kit_aws_ssm.rb, without
 # redmine_kit_aws, which Redmine loads later. The plugin still requires
 # redmine_kit_aws, as every Redmine Kit AWS plugin does.
@@ -13,9 +17,6 @@ unless defined?(RedmineKit::Aws::Ssm::VERSION)
 end
 
 Redmine::Plugin.register :redmine_kit_aws_ssm do
-  # First, so that without redmine_kit_aws Redmine stops with its own message
-  # ("... requires the redmine_kit_aws plugin") before anything else runs.
-  requires_redmine_plugin :redmine_kit_aws, version_or_higher: '0.1.0'
   name 'Redmine Kit AWS SSM'
   author 'Redmine Kit'
   description 'Loads environment variables from AWS Systems Manager Parameter Store'
